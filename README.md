@@ -30,7 +30,7 @@ spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect
 spring.jpa.show-sql=true
 ```
 
-# 프로젝트 구조
+# 📁 프로젝트 구조
 현재 프로젝트의 기본 폴더 구조는 다음과 같습니다.
 
 ```
@@ -48,14 +48,14 @@ spring.jpa.show-sql=true
     └── java - 테스트 코드 작성
 ```
     
-# 향후 작업 계획
+# 🚧 향후 작업 계획
  비즈니스 로직 추가 개발
 
  API 테스트 진행
 
  Docker 이미지 생성 및 EC2 배포
 
-# 개발 현황
+# 📌 개발 현황
 상태	작업 내용
 ```
 ✅	AWS RDS 데이터베이스 설정 완료
