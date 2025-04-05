@@ -20,6 +20,7 @@ Spring Boot 프레임워크를 기반으로 하며, 데이터베이스는 AWS의
 
 **`application.properties` 설정 예시:**
 
+
 ```properties
 spring.datasource.url=jdbc:mariadb://[엔드포인트]:3306/[데이터베이스이름]
 spring.datasource.username=[사용자명]
@@ -27,3 +28,34 @@ spring.datasource.password=[비밀번호]
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect
 spring.jpa.show-sql=true
+```
+
+# 프로젝트 구조
+현재 프로젝트의 기본 폴더 구조는 다음과 같습니다.
+
+
+src
+├── main
+│   ├── java
+│   │   └── com.example.sutalk
+│   │       ├── controller  - API 요청 처리
+│   │       ├── service     - 비즈니스 로직 구현
+│   │       ├── repository  - 데이터 접근 계층
+│   │       └── entity      - 데이터베이스 엔티티 클래스
+│   └── resources
+│       └── application.properties - 설정 파일
+└── test
+    └── java - 테스트 코드 작성
+    
+# 향후 작업 계획
+ 비즈니스 로직 추가 개발
+
+ API 테스트 진행
+
+ Docker 이미지 생성 및 EC2 배포
+
+# 개발 현황
+상태	작업 내용
+✅	AWS RDS 데이터베이스 설정 완료
+✅	Entity 및 Repository 구성 완료
+🔜	비즈니스 로직 구현 및 배포 준비
