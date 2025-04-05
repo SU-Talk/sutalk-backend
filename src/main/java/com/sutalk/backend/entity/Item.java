@@ -25,6 +25,7 @@ public class Item {
     private String title;
 
 
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
