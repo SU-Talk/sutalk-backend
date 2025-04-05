@@ -33,8 +33,8 @@ spring.jpa.show-sql=true
 # 프로젝트 구조
 현재 프로젝트의 기본 폴더 구조는 다음과 같습니다.
 
-
-src
+```
+ src
 ├── main
 │   ├── java
 │   │   └── com.example.sutalk
@@ -46,6 +46,7 @@ src
 │       └── application.properties - 설정 파일
 └── test
     └── java - 테스트 코드 작성
+```
     
 # 향후 작업 계획
  비즈니스 로직 추가 개발
