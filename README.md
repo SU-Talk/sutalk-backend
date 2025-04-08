@@ -10,12 +10,14 @@ Spring Boot 기반이며, 데이터베이스는 AWS의 MariaDB RDS를 사용합�
 - **Backend:** Spring Boot
 - **Database:** MariaDB (Amazon RDS)
 - **Deployment:** Docker, AWS EC2
+- **CI/CD:** GitHub Actions + Docker 기반 자동 배포
 
 ---
 
 ## 🚩 주의 사항
 
-데이터베이스 접속 정보는 로컬이나 AWS Secrets Manager 등 별도의 보안 환경에서 관리하시기 바랍니다.
+데이터베이스 접속 정보는 로컬이나 AWS Secrets Manager 등 별도의 보안 환경에서 관리하시기 바랍니다.  
+EC2 SSH 키 및 RDS 비밀번호 등 민감 정보는 GitHub Secrets로 관리합니다.
 
 ---
 
@@ -49,22 +51,38 @@ spring.jpa.show-sql=true
 └── test
     └── java - 테스트 코드 작성
 ```
+---
+
+# 🚀 배포 구성
+GitHub Actions를 통해 main 브랜치 푸시 시 EC2 서버에 자동 배포
+
+Docker로 패키징된 Spring Boot 애플리케이션 실행
+
+탄력적 IP를 통한 EC2 고정 접근 경로 유지
+
+EC2 SSH Key, 접속 정보 등은 GitHub Actions Secrets로 관리
 
 ---
 
-# 🚧 향후 작업 계획
- 비즈니스 로직 추가 개발
+# 🚧 후 작업 계획
+비즈니스 로직 추가 개발
 
- API 테스트 진행
+API 테스트 진행 (Postman, RestDocs 등)
 
- Docker 이미지 생성 및 EC2 배포
+ERD 기반 Entity 보완 및 연관관계 최적화
 
- ---
+프론트와 연동하여 전체 서비스 흐름 통합
+
+---
 
 # 📌 개발 현황
 
 ```
-✅	AWS RDS 데이터베이스 설정 완료
-✅	Entity 및 Repository 구성 완료
-🔜	비즈니스 로직 구현 및 배포 준비
+✅ AWS RDS 데이터베이스 설정 완료
+✅ Entity 및 Repository 구성 완료
+✅ Dockerfile 작성 및 Docker 빌드 테스트 완료
+✅ GitHub Actions를 통한 EC2 자동 배포 구성 완료
+✅ EC2 인스턴스 연결 및 Docker 기반 배포 성공
+🔜 비즈니스 로직 구현 및 API 테스트
+
 ```
