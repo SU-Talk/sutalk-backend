@@ -17,8 +17,14 @@ public class Item {
     private Long itemid;
 
 
+    private String comment;
+    private String thumbnail;
+    private String time;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerid", nullable = false)
+    @JoinColumn(name = "sellerid") // nullable = false 삭제!
+
     private User seller;
 
     @Column(nullable = false)
@@ -41,6 +47,7 @@ public class Item {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images;
+
 
     public enum Status {
         판매중, 예약중, 거래완료
