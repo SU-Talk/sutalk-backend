@@ -49,6 +49,7 @@ public class Item {
     private List<ItemImage> images;
 
 
+
     public enum Status {
         판매중, 예약중, 거래완료
     }
