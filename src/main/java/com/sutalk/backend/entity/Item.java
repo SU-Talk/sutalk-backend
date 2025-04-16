@@ -38,6 +38,8 @@ public class Item {
     @Column(nullable = false)
     private int price;
 
+
+
     private String category;
 
     @Enumerated(EnumType.STRING)
