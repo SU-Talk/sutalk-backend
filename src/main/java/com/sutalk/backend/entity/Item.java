@@ -39,7 +39,6 @@ public class Item {
     private int price;
 
 
-
     private String category;
 
     @Enumerated(EnumType.STRING)
