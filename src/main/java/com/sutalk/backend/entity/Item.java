@@ -2,47 +2,54 @@ package com.sutalk.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ← 이거 꼭 있어야 해!
     private Long itemid;
 
-    private String title;
 
     private String comment;
+    private String thumbnail;
+    private String time;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sellerid") // nullable = false 삭제!
+
+    private User seller;
+
+    @Column(nullable = false)
+    private String title;
+
+
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false)
     private int price;
 
     private String category;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.판매중;
 
-    private LocalDateTime regdate;
+    private Long regdate;
 
-    private LocalDateTime completedDate;
-
-    private String thumbnail;
-
-    private String time;
-
-    @ManyToOne
-    @JoinColumn(name = "seller_userid")
-    private User seller;
-
-    @ManyToOne
-    @JoinColumn(name = "buyer_userid")
-    private User buyer;
-
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images;
+
+
+    public enum Status {
+        판매중, 예약중, 거래완료
+    }
 }
