@@ -1,4 +1,3 @@
-// User.java
 package com.sutalk.backend.entity;
 
 import jakarta.persistence.*;
@@ -7,11 +6,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
 
     @Id
@@ -19,17 +15,35 @@ public class User {
 
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String phone;
 
     private String status;
 
-    @Column(nullable = false)
-    private byte[] password;
+    // 연관 관계
+    @OneToMany(mappedBy = "seller")
+    private List<Item> sellingItems;
 
-    // 관계 설정 (예: 아이템 목록)
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items;
+    @OneToMany(mappedBy = "buyer")
+    private List<Item> buyingItems;
+
+    @OneToMany(mappedBy = "user")
+    private List<ItemTransaction> transactions;
+
+    @OneToMany(mappedBy = "reporter")
+    private List<Report> reportsSent;
+
+    @OneToMany(mappedBy = "reported")
+    private List<Report> reportsReceived;
+
+    @OneToMany(mappedBy = "blocker")
+    private List<Block> blockedUsers;
+
+    @OneToMany(mappedBy = "blocked")
+    private List<Block> blockingUsers;
+
+    @OneToMany(mappedBy = "sender")
+    private List<ChatMessage> sentMessages;
 }

@@ -9,25 +9,24 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Review {
+@Table(name = "chat_room")
+public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reviewid;
-
-    @Column(nullable = false)
-    private int rating;
-
-    @Column(columnDefinition = "TEXT")
-    private String comment;
-
-    private Long regdate;
+    private Long chatroomid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_itemid", nullable = false)
-    private Item item;
+    @JoinColumn(name = "item_transactionid", nullable = false)
+    private ItemTransaction itemTransaction;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_userid", nullable = false)
+    private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_userid", nullable = false)
     private User buyer;
+
+    private Long createdAt;
 }

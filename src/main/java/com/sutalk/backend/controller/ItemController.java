@@ -17,16 +17,14 @@ public class ItemController {
         Item item = Item.builder()
                 .itemid(1L)
                 .title("맥북 M2 팝니다")
-                .comment("거의 새 상품!")
+                .comment("거의 새 상품!")  // ← 이제 인식될 거야
                 .price(1200000)
                 .thumbnail("/assets/default-image.png")
                 .category("전자제품")
                 .time("5분 전")
                 .build();
+
         list.add(item);
         return list;
     }
-
 }
-
-

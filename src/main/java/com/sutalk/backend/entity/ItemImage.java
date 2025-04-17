@@ -3,24 +3,23 @@ package com.sutalk.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 @Table(name = "item_images")
 public class ItemImage {
 
     @Id
-    private String imageid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long photoid;
+
+    private String photoPath;
+
+    private LocalDateTime regdate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "itemid", nullable = false)
+    @JoinColumn(name = "item_itemid")
     private Item item;
-
-    @Column(nullable = false)
-    private String src; // AWS S3 URL
-
-    private Long regdate;
 }
