@@ -23,9 +23,14 @@ public class Item {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerid") // nullable = false 삭제!
-
+    @JoinColumn(name = "sellerid")
     private User seller;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyer_userid")
+    private User buyer;
+
+
 
     @Column(nullable = false)
     private String title;
