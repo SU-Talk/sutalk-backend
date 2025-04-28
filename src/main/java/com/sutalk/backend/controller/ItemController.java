@@ -1,30 +1,32 @@
 package com.sutalk.backend.controller;
 
-import com.sutalk.backend.entity.Item;
+import com.sutalk.backend.dto.ItemRegisterRequestDTO;
+import com.sutalk.backend.service.ItemService;
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/items")
-@CrossOrigin
+@RequiredArgsConstructor
 public class ItemController {
 
-    @GetMapping
-    public List<Item> getAllItems() {
-        List<Item> list = new ArrayList<>();
-        Item item = Item.builder()
-                .itemid(1L)
-                .title("맥북 M2 팝니다")
-                .comment("거의 새 상품!")  // ← 이제 인식될 거야
-                .price(1200000)
-                .thumbnail("/assets/default-image.png")
-                .category("전자제품")
-                .time("5분 전")
-                .build();
+    private final ItemService itemService;
 
-        list.add(item);
-        return list;
+    @PostMapping
+    public ResponseEntity<?> registerItem(@RequestBody ItemRegisterRequestDTO requestDTO) {
+        Long itemId = itemService.saveItem(requestDTO);
+        return ResponseEntity.ok().body(
+                new ItemRegisterResponse(itemId, "상품이 성공적으로 등록되었습니다.")
+        );
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static class ItemRegisterResponse {
+        private Long itemId;
+        private String message;
     }
 }

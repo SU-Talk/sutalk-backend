@@ -27,6 +27,11 @@ public class Item {
 
     private User seller;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyerid")
+    private User buyer;
+
+
     @Column(nullable = false)
     private String title;
 
