@@ -7,12 +7,12 @@ import java.util.List;
 @Getter
 @Setter
 public class ItemRegisterRequestDTO {
-
     private String title;
     private String description;
     private Integer price;
     private String category;
-    private String sellerId;
-    private List<String> itemImages;  // 이미지 URL 리스트
-
+    private String sellerId;  // ✅ 여기를 수정!!
+    private List<String> itemImages;
+    private String meetLocation;
 }
+
