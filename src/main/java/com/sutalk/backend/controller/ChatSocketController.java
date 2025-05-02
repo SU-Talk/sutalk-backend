@@ -1,5 +1,7 @@
 package com.sutalk.backend.controller;
 
+import com.sutalk.backend.dto.MessageDTO;
+import com.sutalk.backend.dto.MessageResponseDTO;
 import com.sutalk.backend.entity.ChatMessage;
 import com.sutalk.backend.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +18,21 @@ public class ChatSocketController {
     private final ChatMessageService chatMessageService;
 
     @MessageMapping("/chat.send")
-    public void sendMessage(@Payload ChatMessage chatMessage) {
-        // 저장
+    public void sendMessage(@Payload MessageDTO messageDTO) {
         ChatMessage saved = chatMessageService.sendMessage(
-                chatMessage.getChatRoom().getChatroomid(),
-                chatMessage.getSender().getUserid(),
-                chatMessage.getContent()
+                messageDTO.getChatRoomId(),
+                messageDTO.getSenderId(),
+                messageDTO.getComment()
         );
 
-        // /topic/chat/{chatRoomId}로 브로드캐스트
-        messagingTemplate.convertAndSend(
-                "/topic/chat/" + saved.getChatRoom().getChatroomid(),
-                saved
-        );
+        MessageResponseDTO responseDTO = MessageResponseDTO.builder()
+                .messageId(saved.getMessageid())
+                .chatRoomId(saved.getChatRoom().getChatroomid())
+                .senderId(saved.getSender().getUserid())
+                .content(saved.getContent())
+                .sentAt(saved.getSentAt())
+                .build();
+
+        messagingTemplate.convertAndSend("/topic/chat/" + responseDTO.getChatRoomId(), responseDTO);
     }
 }
