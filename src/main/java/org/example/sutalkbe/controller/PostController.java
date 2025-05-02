@@ -17,19 +17,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
     private final PostService postService;
 
+    // 전체 게시글 조회: GET /api/posts?page=1
     @GetMapping
     public List<PostResponseDTO> getPosts(@RequestParam(defaultValue = "1") int page) {
-        return postService.getPosts(page).stream()
-                .map(PostResponseDTO::new)
-                .collect(Collectors.toList());
+        List<Post> posts = postService.getPosts(page);
+        return posts.stream().map(PostResponseDTO::new).toList();
     }
 
+    // 단일 게시글 상세조회: GET /api/posts/{postId}
     @GetMapping("/{postId}")
     public PostResponseDTO getPostById(@PathVariable Long postId) {
         Post post = postService.getPostById(postId);
         return new PostResponseDTO(post);
     }
 
+    // 게시글 등록: POST /api/posts
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Post createPost(
             @RequestPart("post") Post post,

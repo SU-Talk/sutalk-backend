@@ -2,12 +2,15 @@ package org.example.sutalkbe.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.sutalkbe.entity.Image;
 import org.example.sutalkbe.entity.Post;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -20,6 +23,7 @@ public class PostResponseDTO {
     private String location;
     private String thumbnail;
     private String formattedCreatedAt; // 포맷된 날짜 문자열
+    private List<ImageDTO> images;
 
     public PostResponseDTO(Post post) {
         this.id = post.getId();
@@ -32,19 +36,9 @@ public class PostResponseDTO {
         this.formattedCreatedAt = (post.getCreatedAt() != null)
                 ? post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
                 : "날짜 정보 없음";
-
-        if (post.getCreatedAt() != null) {
-            this.formattedCreatedAt = post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        } else {
-            this.formattedCreatedAt = "날짜 정보 없음"; // ✅ Null 체크
-        }
-    }
-
-    // 날짜 포맷팅 (Null-safe)
-    private String formatCreatedAt(LocalDateTime createdAt) {
-        return Optional.ofNullable(createdAt)
-                .map(date -> date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")))
-                .orElse("날짜 정보 없음");
+        this.images = post.getImages() != null
+                ? post.getImages().stream().map(ImageDTO::new).collect(Collectors.toList())
+                : null;
     }
 
     // 가격 포맷팅 (Null-safe)
@@ -57,6 +51,16 @@ public class PostResponseDTO {
             return new DecimalFormat("#,###").format(priceInt) + "원";
         } catch (NumberFormatException e) {
             return price; // 변환 실패 시 원본 값 반환
+        }
+    }
+
+    @Getter @Setter
+    public static class ImageDTO {
+        private Long id;
+        private String url;
+        public ImageDTO(Image image) {
+            this.id = image.getId();
+            this.url = image.getUrl();
         }
     }
 }

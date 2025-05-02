@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.images WHERE p.id = :postId")
-    Optional<Post> findByIdWithImages(@Param("postId") Long postId);
+    // 명확한 JOIN FETCH 쿼리 작성
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.images WHERE p.id = :id")
+    Optional<Post> findByIdWithImages(@Param("id") Long id);
 }

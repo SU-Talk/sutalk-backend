@@ -1,6 +1,6 @@
 package org.example.sutalkbe.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.sutalkbe.entity.Image;
 import org.example.sutalkbe.entity.User;
@@ -40,18 +40,27 @@ public class PostService {
             throw new RuntimeException("디렉토리 생성 실패: " + e.getMessage());
         }
 
+        String thumbnailUrl = null;
         if (images != null && !images.isEmpty()) {
-            for (MultipartFile file : images) {
+            for (int i = 0; i < images.size(); i++) {
+                MultipartFile file = images.get(i);
                 String originalFileName = file.getOriginalFilename();
                 String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-                String saveFileName = UUID.randomUUID() + ext;
+                String saveFileName = UUID.randomUUID().toString().replace("-", "") + ext;
                 Path filePath = uploadPath.resolve(saveFileName);
 
                 try {
                     Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
+                    String imageUrl = "/uploads/" + saveFileName;
+
+                    // 첫 번째 이미지를 썸네일로 지정
+                    if (i == 0) {
+                        thumbnailUrl = imageUrl;
+                    }
+
                     Image image = new Image();
-                    image.setUrl("/uploads/" + saveFileName);
+                    image.setUrl(imageUrl);
                     image.setPost(savedPost);
                     imageRepository.save(image);
                 } catch (IOException e) {
@@ -59,13 +68,22 @@ public class PostService {
                 }
             }
         }
+
+        // 썸네일 필드에 첫 번째 이미지의 URL 저장
+        if (thumbnailUrl != null) {
+            savedPost.setThumbnail(thumbnailUrl);
+            postRepository.save(savedPost); // 썸네일 정보 반영
+        }
+
         return savedPost;
     }
 
-    public Post getPostById(Long postId) {
-        return postRepository.findByIdWithImages(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-    }
+        @Transactional(readOnly = true)
+        public Post getPostById(Long postId) {
+            return postRepository.findByIdWithImages(postId)
+                    .orElseThrow(() -> new RuntimeException("Post not found"));
+        }
+
 
     public List<Post> getPosts(int page) {
         return postRepository.findAll();
