@@ -17,7 +17,6 @@ public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
 
-    // ✅ 메시지 조회 (특정 채팅방)
     @GetMapping("/{chatRoomId}")
     public ResponseEntity<List<MessageResponseDTO>> getMessagesByChatRoom(@PathVariable Long chatRoomId) {
         List<ChatMessage> messages = chatMessageService.getMessagesByChatRoom(chatRoomId);

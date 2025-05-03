@@ -1,3 +1,4 @@
+// 📁 controller/ChatSocketController.java
 package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.MessageDTO;
@@ -22,7 +23,7 @@ public class ChatSocketController {
         ChatMessage saved = chatMessageService.sendMessage(
                 messageDTO.getChatRoomId(),
                 messageDTO.getSenderId(),
-                messageDTO.getComment()
+                messageDTO.getContent()  // ✅ message → content
         );
 
         MessageResponseDTO responseDTO = MessageResponseDTO.builder()

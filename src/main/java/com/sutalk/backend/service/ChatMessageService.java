@@ -1,11 +1,11 @@
+// 📁 service/ChatMessageService.java
 package com.sutalk.backend.service;
 
-import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.ChatMessage;
+import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.User;
 import com.sutalk.backend.repository.ChatMessageRepository;
 import com.sutalk.backend.repository.UserRepository;
-import com.sutalk.backend.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
+
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;

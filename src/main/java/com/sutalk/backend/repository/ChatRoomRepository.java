@@ -3,7 +3,10 @@ package com.sutalk.backend.repository;
 import com.sutalk.backend.entity.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+import java.util.List;
+import java.util.Optional;
 
-    // 필요 시 확장: 구매자/판매자 기준 채팅방 조회 등
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+    List<ChatRoom> findByBuyer_UseridOrSeller_Userid(String buyerId, String sellerId);
+    Optional<ChatRoom> findByBuyer_UseridAndSeller_UseridAndItemTransaction_Transactionid(String buyerId, String sellerId, Long transactionId);
 }

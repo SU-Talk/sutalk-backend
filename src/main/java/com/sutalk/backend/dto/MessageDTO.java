@@ -6,5 +6,5 @@ import lombok.Data;
 public class MessageDTO {
     private Long chatRoomId;
     private String senderId;
-    private String comment;
+    private String content;  // ✅ comment → content
 }
