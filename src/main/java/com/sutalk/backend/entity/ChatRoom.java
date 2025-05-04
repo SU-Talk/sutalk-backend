@@ -28,5 +28,6 @@ public class ChatRoom {
     @JoinColumn(name = "buyer_userid", nullable = false)
     private User buyer;
 
+    @Column(name = "created_at")
     private Long createdAt;
 }

@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 @Table(name = "item_transaction")
 public class ItemTransaction {
 
@@ -24,7 +21,7 @@ public class ItemTransaction {
     @JoinColumn(name = "user_userid", nullable = false)
     private User user;
 
-    @Column(nullable = false)
+    @Column(name = "distinct_seller", nullable = false)
     private String distinctSeller;
 
     @Column(columnDefinition = "TEXT")

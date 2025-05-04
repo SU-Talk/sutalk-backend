@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
 
-
     @Id
     private String userid;
 
@@ -22,6 +21,8 @@ public class User {
     private String phone;
 
     private String status;
+
+    private String password;
 
     // 연관 관계
     @OneToMany(mappedBy = "seller")

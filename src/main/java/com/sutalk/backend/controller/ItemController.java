@@ -1,3 +1,4 @@
+// ✅ ItemController.java
 package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
@@ -22,14 +23,11 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    // ✅ 1. 게시글 등록
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerItem(
             @RequestPart("item") ItemRegisterRequestDTO requestDTO,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
-        System.out.println("📩 registerItem() 호출됨 - title: " + requestDTO.getTitle());
-
         Long itemId = itemService.saveItemWithImages(requestDTO, images);
 
         Map<String, Object> response = new HashMap<>();
@@ -38,19 +36,13 @@ public class ItemController {
         return ResponseEntity.ok(response);
     }
 
-
-    // ✅ 2. 게시글 단건 조회
     @GetMapping("/{id}")
     public ResponseEntity<ItemResponseDTO> getItem(@PathVariable Long id) {
-        Item item = itemService.getItemById(id);
-        ItemResponseDTO responseDTO = itemService.toResponseDTO(item);
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(itemService.getItemResponseById(id));
     }
 
-    // ✅ 3. 게시글 전체 조회
     @GetMapping
     public ResponseEntity<List<ItemResponseDTO>> getAllItems() {
-        List<ItemResponseDTO> items = itemService.getAllItems();
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(itemService.getAllItems());
     }
 }

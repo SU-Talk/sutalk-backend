@@ -1,3 +1,4 @@
+// ✅ ItemResponseDTO.java
 package com.sutalk.backend.dto;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class ItemResponseDTO {
     private String description;
     private int price;
     private String regdate;
-    private String meetLocation;              // ✅ 이름 통일
+    private String meetLocation;
     private String sellerId;
-    private List<String> itemImages;          // ✅ 이름 통일
+    private List<String> itemImages;
 }

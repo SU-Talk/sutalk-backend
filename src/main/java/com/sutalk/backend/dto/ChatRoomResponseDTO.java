@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ChatRoomResponseDTO {
-    private Long chatroomId;         // ✅ camelCase로 수정
+    private Long chatroomId;
     private String itemTitle;
     private String buyerUsername;
     private String sellerUsername;

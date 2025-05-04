@@ -2,8 +2,9 @@ package com.sutalk.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.ArrayList; // ✅ 추가
+import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -17,22 +18,18 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemid;
 
-    private String comment;
-    private String thumbnail;
-    private String time;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerid")
+    @JoinColumn(name = "seller_userid", referencedColumnName = "userid")
     private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyerid")
+    @JoinColumn(name = "buyer_userid", referencedColumnName = "userid")
     private User buyer;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 255)
+    @Column(name = "meet_location")
     private String meetLocation;
 
     @Column(columnDefinition = "TEXT")
@@ -47,6 +44,15 @@ public class Item {
     private Status status = Status.판매중;
 
     private Long regdate;
+
+    @Column(name = "completed_date")
+    private LocalDateTime completedDate;
+
+    private String comment;
+
+    private String thumbnail;
+
+    private String time;
 
     @Builder.Default
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)

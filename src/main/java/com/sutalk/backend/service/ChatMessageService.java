@@ -1,12 +1,13 @@
-// 📁 service/ChatMessageService.java
 package com.sutalk.backend.service;
 
+import com.sutalk.backend.dto.MessageDTO;
 import com.sutalk.backend.entity.ChatMessage;
 import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.User;
 import com.sutalk.backend.repository.ChatMessageRepository;
 import com.sutalk.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,21 +19,24 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public ChatMessage sendMessage(Long chatRoomId, String senderId, String content) {
-        ChatRoom chatRoom = chatRoomService.getChatRoomById(chatRoomId);
-        User sender = userRepository.findById(senderId)
+    public void sendMessage(MessageDTO dto) {
+        ChatRoom chatRoom = chatRoomService.getChatRoomById(dto.getChatRoomId());
+        User sender = userRepository.findById(dto.getSenderId())
                 .orElseThrow(() -> new RuntimeException("보낸 사람을 찾을 수 없습니다"));
 
         ChatMessage message = ChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
-                .content(content)
+                .content(dto.getContent())
                 .sentAt(System.currentTimeMillis())
                 .isRead(false)
                 .build();
 
-        return chatMessageRepository.save(message);
+        chatMessageRepository.save(message);
+
+        messagingTemplate.convertAndSend("/topic/chat/" + dto.getChatRoomId(), dto);
     }
 
     public List<ChatMessage> getMessagesByChatRoom(Long chatRoomId) {

@@ -16,10 +16,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ws/**").permitAll()  // 🔥 WebSocket 허용!
-                        .requestMatchers("/**").permitAll()     // 🔓 전체 허용 (개발용)
+                        .requestMatchers("/api/**", "/uploads/**", "/ws/**").permitAll()  // ✅ 필요한 경로만 허용
+                        .anyRequest().permitAll()  // 그 외는 기본 허용 (개발 단계니까)
                 )
-                .cors(Customizer.withDefaults());           // CORS 허용
+                .cors(Customizer.withDefaults());  // CORS 허용
 
         return http.build();
     }
