@@ -11,7 +11,6 @@ import lombok.*;
 @Builder
 public class ChatMessage {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageid;
