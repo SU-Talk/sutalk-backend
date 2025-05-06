@@ -49,3 +49,4 @@ public class User {
     @OneToMany(mappedBy = "sender")
     private List<ChatMessage> sentMessages;
 }
+
