@@ -1,4 +1,3 @@
-// ✅ ItemService.java
 package com.sutalk.backend.service;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
@@ -46,9 +45,13 @@ public class ItemService {
     }
 
     public List<ItemResponseDTO> getAllItems() {
-        List<Item> items = itemRepository.findAllWithSellerAndImages();
+        return itemRepository.findAllWithSellerAndImages().stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
 
-        return items.stream()
+    public List<ItemResponseDTO> getItemsBySellerId(String userId) {
+        return itemRepository.findBySellerUserIdWithImages(userId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -63,11 +66,13 @@ public class ItemService {
                 .meetLocation(item.getMeetLocation())
                 .regdate(String.valueOf(item.getRegdate()))
                 .sellerId(item.getSeller() != null ? item.getSeller().getUserid() : null)
+                .status(item.getStatus().name()) // ✅ status 추가
                 .itemImages(item.getItemImages() != null
                         ? item.getItemImages().stream().map(ItemImage::getPhotoPath).toList()
                         : new ArrayList<>())
                 .build();
     }
+
 
     public Long saveItemWithImages(ItemRegisterRequestDTO requestDTO, List<MultipartFile> images) {
         User seller = userRepository.findById(requestDTO.getSellerId())
@@ -84,7 +89,6 @@ public class ItemService {
                 .regdate(System.currentTimeMillis())
                 .build();
 
-        // 이미지 저장
         if (images != null && !images.isEmpty()) {
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
             Path uploadPath = Paths.get(uploadDir);
@@ -112,7 +116,6 @@ public class ItemService {
             }
         }
 
-        Item saved = itemRepository.save(item);
-        return saved.getItemid();
+        return itemRepository.save(item).getItemid();
     }
 }

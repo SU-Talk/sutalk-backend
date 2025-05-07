@@ -3,11 +3,10 @@ package com.sutalk.backend.repository;
 import com.sutalk.backend.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 
-
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
@@ -21,4 +20,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "LEFT JOIN FETCH i.itemImages " +
             "WHERE i.itemid = :id")
     Optional<Item> findItemWithSellerAndImagesById(@Param("id") Long id);
+
+    // ✨ 판매자(userId) 기준 본인 게시글만
+    @Query("SELECT DISTINCT i FROM Item i " +
+            "LEFT JOIN FETCH i.seller s " +
+            "LEFT JOIN FETCH i.itemImages " +
+            "WHERE s.userid = :userId")
+    List<Item> findBySellerUserIdWithImages(@Param("userId") String userId);
 }

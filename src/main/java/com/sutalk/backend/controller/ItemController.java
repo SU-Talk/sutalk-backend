@@ -1,9 +1,7 @@
-// ✅ ItemController.java
 package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
 import com.sutalk.backend.dto.ItemResponseDTO;
-import com.sutalk.backend.entity.Item;
 import com.sutalk.backend.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -29,7 +27,6 @@ public class ItemController {
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         Long itemId = itemService.saveItemWithImages(requestDTO, images);
-
         Map<String, Object> response = new HashMap<>();
         response.put("itemid", itemId);
         response.put("message", "상품이 성공적으로 등록되었습니다.");
@@ -44,5 +41,11 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<List<ItemResponseDTO>> getAllItems() {
         return ResponseEntity.ok(itemService.getAllItems());
+    }
+
+    // ✨ 판매자 본인 글만 조회
+    @GetMapping("/mine")
+    public ResponseEntity<List<ItemResponseDTO>> getMyItems(@RequestParam String userId) {
+        return ResponseEntity.ok(itemService.getItemsBySellerId(userId));
     }
 }
