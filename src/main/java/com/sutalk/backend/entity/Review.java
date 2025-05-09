@@ -9,12 +9,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter // ✅ 추가!
+@Setter
 @NoArgsConstructor
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "reviewid")
     private Long id;
 
     @ManyToOne
@@ -25,8 +26,20 @@ public class Review {
     @JoinColumn(name = "buyer_userid", nullable = false)
     private User buyer;
 
+    @ManyToOne
+    @JoinColumn(name = "revieweeid", nullable = false)
+    private User reviewee;
+
+    @ManyToOne
+    @JoinColumn(name = "reviewerid", nullable = false)
+    private User reviewer;
+
+    @ManyToOne
+    @JoinColumn(name = "transactionid", nullable = false)  // ✅ 추가!
+    private ItemTransaction transaction;
+
     @Column(nullable = false)
-    private int rating; // 1~5점
+    private int rating;
 
     @Column(length = 500)
     private String comment;

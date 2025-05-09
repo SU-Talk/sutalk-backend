@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.sutalk.backend.dto.ReviewResponseDTO;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +26,11 @@ public class ReviewController {
     public ResponseEntity<?> createReview(@RequestBody ReviewRequestDTO dto) {
         reviewService.createReview(dto);
         return ResponseEntity.ok("리뷰가 저장되었습니다.");
+    }
+
+    @GetMapping("/seller/{sellerId}")
+    public ResponseEntity<List<ReviewResponseDTO>> getReviewsBySeller(@PathVariable String sellerId) {
+        List<ReviewResponseDTO> reviews = reviewService.getReviewsForSeller(sellerId);
+        return ResponseEntity.ok(reviews);
     }
 }
