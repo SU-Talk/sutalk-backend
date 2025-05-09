@@ -48,4 +48,41 @@ public class ItemController {
     public ResponseEntity<List<ItemResponseDTO>> getMyItems(@RequestParam String userId) {
         return ResponseEntity.ok(itemService.getItemsBySellerId(userId));
     }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> updateItem(
+            @PathVariable Long id,
+            @RequestPart("item") ItemRegisterRequestDTO requestDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        itemService.updateItem(id, requestDTO, images);
+        Map<String, Object> response = new HashMap<>();
+        response.put("itemid", id);
+        response.put("message", "게시글이 성공적으로 수정되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "게시글이 삭제되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Map<String, String>> updateItemStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body
+    ) {
+        String status = body.get("status");
+        itemService.updateItemStatus(id, status);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "게시글 상태가 성공적으로 변경되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 }

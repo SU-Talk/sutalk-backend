@@ -9,7 +9,9 @@ import java.util.Optional;
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     List<ChatRoom> findByBuyer_UseridOrSeller_Userid(String buyerId, String sellerId);
+    List<ChatRoom> findAllByItemTransaction_Transactionid(Long transactionId);
 
-    // ✅ 거래 ID만으로 중복 방 체크
     Optional<ChatRoom> findByItemTransaction_Transactionid(Long transactionId);
+
+    void deleteByItemTransaction_Transactionid(Long transactionId); // ✅ 이거 추가!
 }

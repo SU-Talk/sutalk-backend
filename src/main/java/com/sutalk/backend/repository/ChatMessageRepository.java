@@ -8,4 +8,7 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     List<ChatMessage> findByChatRoom_ChatroomidOrderBySentAtAsc(Long chatroomid);
+
+    // ✅ 추가
+    void deleteAllByChatRoom_Chatroomid(Long chatroomid);
 }
