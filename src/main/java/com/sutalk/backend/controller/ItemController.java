@@ -2,6 +2,10 @@ package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
 import com.sutalk.backend.dto.ItemResponseDTO;
+import com.sutalk.backend.entity.ChatRoom;
+import com.sutalk.backend.entity.Item;
+import com.sutalk.backend.repository.ChatRoomRepository;
+import com.sutalk.backend.repository.ItemRepository;
 import com.sutalk.backend.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -9,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +25,8 @@ import java.util.Map;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemRepository itemRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> registerItem(
@@ -43,7 +50,6 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getAllItems());
     }
 
-    // ✨ 판매자 본인 글만 조회
     @GetMapping("/mine")
     public ResponseEntity<List<ItemResponseDTO>> getMyItems(@RequestParam String userId) {
         return ResponseEntity.ok(itemService.getItemsBySellerId(userId));
@@ -82,7 +88,34 @@ public class ItemController {
         return ResponseEntity.ok(response);
     }
 
+    // ✅ 거래 완료 처리
+    @PostMapping("/{itemId}/complete")
+    public ResponseEntity<?> completeItemDeal(
+            @PathVariable Long itemId,
+            @RequestParam Long chatRoomId
+    ) {
+        System.out.println("📩 거래 완료 요청: itemId=" + itemId + ", chatRoomId=" + chatRoomId);
 
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다."));
 
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+
+        // 구매자 등록 및 상태 변경
+        item.setBuyer(chatRoom.getBuyer());
+        item.setStatus(Item.Status.거래완료);
+        item.setCompletedDate(LocalDateTime.now());
+
+        itemRepository.save(item);
+
+        return ResponseEntity.ok("거래 완료 처리되었습니다.");
+    }
+
+    // ✨ 구매자 거래완료 목록
+    @GetMapping("/completed")
+    public ResponseEntity<List<ItemResponseDTO>> getCompletedItemsByBuyer(@RequestParam String userId) {
+        return ResponseEntity.ok(itemService.getCompletedItemsByBuyer(userId));
+    }
 
 }

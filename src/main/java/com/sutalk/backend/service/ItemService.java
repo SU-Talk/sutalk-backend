@@ -201,5 +201,13 @@ public class ItemService {
         }
     }
 
+    // ✨ 구매자 기준 거래완료 글 목록
+    public List<ItemResponseDTO> getCompletedItemsByBuyer(String buyerId) {
+        return itemRepository.findCompletedByBuyerUserId(buyerId).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
 }

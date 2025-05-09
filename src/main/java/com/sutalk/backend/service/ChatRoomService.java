@@ -55,11 +55,15 @@ public class ChatRoomService {
         // 응답 DTO 구성
         return new ChatRoomResponseDTO(
                 room.getChatroomid(),
+                item.getItemid(),
                 item.getTitle(),
-                room.getBuyer().getUserid(),
-                room.getSeller().getUserid(),
+                room.getBuyer().getName(), // 또는 getUserid()
+                room.getSeller().getName(), // 닉네임
+                room.getSeller().getUserid(), // ✅ 여기서 진짜 sellerId
                 room.getCreatedAt()
         );
+
+
     }
 
     public List<ChatRoomResponseDTO> getChatRoomsByUser(String userId) {
@@ -68,12 +72,15 @@ public class ChatRoomService {
         return rooms.stream()
                 .map(room -> new ChatRoomResponseDTO(
                         room.getChatroomid(),
+                        room.getItemTransaction().getItem().getItemid(),
                         room.getItemTransaction().getItem().getTitle(),
                         room.getBuyer().getUserid(),
-                        room.getSeller().getUserid(),
+                        room.getSeller().getName(), // 닉네임
+                        room.getSeller().getUserid(), // ✅ 진짜 sellerId
                         room.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
+
     }
 
     public ChatRoom getChatRoomById(Long chatRoomId) {

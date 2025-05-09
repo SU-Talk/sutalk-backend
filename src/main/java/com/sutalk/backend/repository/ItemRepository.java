@@ -21,10 +21,18 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "WHERE i.itemid = :id")
     Optional<Item> findItemWithSellerAndImagesById(@Param("id") Long id);
 
-    // ✨ 판매자(userId) 기준 본인 게시글만
+    // 기존 판매자용 유지
     @Query("SELECT DISTINCT i FROM Item i " +
             "LEFT JOIN FETCH i.seller s " +
             "LEFT JOIN FETCH i.itemImages " +
             "WHERE s.userid = :userId")
     List<Item> findBySellerUserIdWithImages(@Param("userId") String userId);
+
+    // ✅ 구매자 기준 거래완료된 아이템 조회
+    @Query("SELECT DISTINCT i FROM Item i " +
+            "LEFT JOIN FETCH i.seller " +
+            "LEFT JOIN FETCH i.itemImages " +
+            "WHERE i.buyer.userid = :buyerId AND i.status = '거래완료'")
+    List<Item> findCompletedByBuyerUserId(@Param("buyerId") String buyerId);
+
 }
