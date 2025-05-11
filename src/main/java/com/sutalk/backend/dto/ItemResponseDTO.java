@@ -19,6 +19,7 @@ public class ItemResponseDTO {
     private String regdate;
     private String meetLocation;
     private String sellerId;
+    private String sellerName; // ✅ 추가
     private List<String> itemImages;
     private String status;
 
@@ -32,9 +33,11 @@ public class ItemResponseDTO {
                 .regdate(item.getRegdate() + "")
                 .meetLocation(item.getMeetLocation())
                 .sellerId(item.getSeller().getUserid())
+                .sellerName(item.getSeller().getName()) // ✅ 추가
                 .itemImages(item.getItemImages().stream()
                         .map(image -> image.getPhotoPath())
                         .collect(Collectors.toList()))
+                .status(String.valueOf(item.getStatus()))
                 .build();
     }
 }
