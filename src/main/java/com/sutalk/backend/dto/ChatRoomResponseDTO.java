@@ -9,8 +9,9 @@ public class ChatRoomResponseDTO {
     private Long chatroomId;
     private Long itemId;
     private String itemTitle;
+    private String buyerId;       // ✅ 추가됨
     private String buyerUsername;
     private String sellerUsername;
-    private String sellerId; // ✅ 추가
+    private String sellerId;
     private Long createdAt;
 }

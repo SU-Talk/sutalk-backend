@@ -222,5 +222,12 @@ public class ItemService {
                 ))
                 .toList();
     }
+    public List<ItemResponseDTO> getItemsBySeller(String sellerId) {
+        return itemRepository.findBySellerUserIdWithImages(sellerId).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
 }

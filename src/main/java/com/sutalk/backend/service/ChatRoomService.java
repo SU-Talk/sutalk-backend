@@ -5,9 +5,11 @@ import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.Item;
 import com.sutalk.backend.entity.ItemTransaction;
 import com.sutalk.backend.entity.User;
+import com.sutalk.backend.repository.ChatMessageRepository;
 import com.sutalk.backend.repository.ChatRoomRepository;
 import com.sutalk.backend.repository.ItemTransactionRepository;
 import com.sutalk.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatRoomService {
 
+    private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ItemTransactionRepository itemTransactionRepository;
     private final UserRepository userRepository;
@@ -57,13 +60,12 @@ public class ChatRoomService {
                 room.getChatroomid(),
                 item.getItemid(),
                 item.getTitle(),
-                room.getBuyer().getName(), // 또는 getUserid()
-                room.getSeller().getName(), // 닉네임
-                room.getSeller().getUserid(), // ✅ 여기서 진짜 sellerId
+                room.getBuyer().getUserid(),        // ✅ buyerId 추가됨
+                room.getBuyer().getName(),
+                room.getSeller().getName(),
+                room.getSeller().getUserid(),
                 room.getCreatedAt()
         );
-
-
     }
 
     public List<ChatRoomResponseDTO> getChatRoomsByUser(String userId) {
@@ -74,17 +76,23 @@ public class ChatRoomService {
                         room.getChatroomid(),
                         room.getItemTransaction().getItem().getItemid(),
                         room.getItemTransaction().getItem().getTitle(),
-                        room.getBuyer().getUserid(),
-                        room.getSeller().getName(), // 닉네임
-                        room.getSeller().getUserid(), // ✅ 진짜 sellerId
+                        room.getBuyer().getUserid(),        // ✅ buyerId 추가됨
+                        room.getBuyer().getName(),
+                        room.getSeller().getName(),
+                        room.getSeller().getUserid(),
                         room.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
-
     }
 
     public ChatRoom getChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+    }
+
+    @Transactional
+    public void deleteChatRoom(Long chatRoomId) {
+        chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoomId);
+        chatRoomRepository.deleteById(chatRoomId);
     }
 }

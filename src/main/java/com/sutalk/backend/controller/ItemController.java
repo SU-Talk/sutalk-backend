@@ -123,6 +123,12 @@ public class ItemController {
     public ResponseEntity<List<ItemSuggestionDTO>> getSuggestions(@RequestParam String keyword) {
         return ResponseEntity.ok(itemService.getItemSuggestionsWithImage(keyword));
     }
+    // ✅ 판매자 ID로 게시글 조회
+    @GetMapping("/by-seller")
+    public ResponseEntity<List<ItemResponseDTO>> getItemsBySeller(@RequestParam String sellerId) {
+        return ResponseEntity.ok(itemService.getItemsBySeller(sellerId));
+    }
+
 
 
 }
