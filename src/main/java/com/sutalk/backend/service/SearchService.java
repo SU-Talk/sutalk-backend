@@ -1,6 +1,6 @@
 package com.sutalk.backend.service;
 
-import com.sutalk.backend.entity.SearchHistory;
+import com.sutalk.backend.entity.History;
 import com.sutalk.backend.repository.SearchHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,37 +16,44 @@ public class SearchService {
 
     private final SearchHistoryRepository searchHistoryRepository;
 
+    // [추가] 연관 검색어 추천 기능
     @Transactional(readOnly = true)
-    public List<String> getSearchHistory() {
-        List<SearchHistory> histories = searchHistoryRepository.findAllByOrderBySearchedAtDesc();
-        return histories.stream()
-                .map(SearchHistory::getKeyword)
+    public List<String> getSuggestions(String keyword) {
+        return searchHistoryRepository
+                .findTop5ByKeywordContainingOrderBySearchedAtDesc(keyword)
+                .stream()
+                .map(History::getKeyword)
+                .distinct() // 중복 제거
                 .collect(Collectors.toList());
     }
-    /**
-     * 검색 기록을 추가합니다. 동일 키워드는 삭제 후 최신으로 추가합니다.
-     */
+
+    // 기존 검색 기록 조회
+    @Transactional(readOnly = true)
+    public List<String> getSearchHistory() {
+        List<History> histories = searchHistoryRepository.findAllByOrderBySearchedAtDesc();
+        return histories.stream()
+                .map(History::getKeyword)
+                .collect(Collectors.toList());
+    }
+
+    // 검색 기록 추가
     @Transactional
     public void addSearchHistory(String keyword) {
-        searchHistoryRepository.deleteByKeyword(keyword);
-        SearchHistory history = SearchHistory.builder()
+        searchHistoryRepository.deleteByKeyword(keyword); // 중복 삭제
+        History history = History.builder()
                 .keyword(keyword)
                 .searchedAt(LocalDateTime.now())
                 .build();
         searchHistoryRepository.save(history);
     }
 
-    /**
-     * 특정 검색 기록을 삭제합니다.
-     */
+    // 개별 검색 기록 삭제
     @Transactional
     public void deleteSearchHistory(String keyword) {
         searchHistoryRepository.deleteByKeyword(keyword);
     }
 
-    /**
-     * 모든 검색 기록을 삭제합니다.
-     */
+    // 전체 검색 기록 삭제
     @Transactional
     public void deleteAllSearchHistory() {
         searchHistoryRepository.deleteAll();
