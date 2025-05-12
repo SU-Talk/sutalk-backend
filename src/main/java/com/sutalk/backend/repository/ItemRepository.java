@@ -35,4 +35,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "WHERE i.buyer.userid = :buyerId AND i.status = '거래완료'")
     List<Item> findCompletedByBuyerUserId(@Param("buyerId") String buyerId);
 
+    @Query("SELECT DISTINCT i FROM Item i " +
+            "WHERE LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(i.description) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "ORDER BY i.regdate DESC")
+    List<Item> findTop10ByKeyword(@Param("keyword") String keyword);
+
 }

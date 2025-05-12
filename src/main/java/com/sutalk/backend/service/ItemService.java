@@ -2,6 +2,7 @@ package com.sutalk.backend.service;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
 import com.sutalk.backend.dto.ItemResponseDTO;
+import com.sutalk.backend.dto.ItemSuggestionDTO;
 import com.sutalk.backend.entity.*;
 import com.sutalk.backend.repository.ChatRoomRepository;
 import com.sutalk.backend.repository.ChatMessageRepository;
@@ -208,5 +209,18 @@ public class ItemService {
     }
 
 
+    // 연관 키워드 추천 기능
+    @Transactional(readOnly = true)
+    public List<ItemSuggestionDTO> getItemSuggestionsWithImage(String keyword) {
+        return itemRepository.findTop10ByKeyword(keyword).stream()
+                .map(item -> new ItemSuggestionDTO(
+                        item.getItemid(),
+                        item.getTitle(),
+                        item.getItemImages() != null && !item.getItemImages().isEmpty()
+                                ? item.getItemImages().get(0).getPhotoPath()
+                                : null
+                ))
+                .toList();
+    }
 
 }

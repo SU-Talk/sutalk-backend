@@ -2,6 +2,7 @@ package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ItemRegisterRequestDTO;
 import com.sutalk.backend.dto.ItemResponseDTO;
+import com.sutalk.backend.dto.ItemSuggestionDTO;
 import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.Item;
 import com.sutalk.backend.repository.ChatRoomRepository;
@@ -117,5 +118,11 @@ public class ItemController {
     public ResponseEntity<List<ItemResponseDTO>> getCompletedItemsByBuyer(@RequestParam String userId) {
         return ResponseEntity.ok(itemService.getCompletedItemsByBuyer(userId));
     }
+
+    @GetMapping("/suggest")
+    public ResponseEntity<List<ItemSuggestionDTO>> getSuggestions(@RequestParam String keyword) {
+        return ResponseEntity.ok(itemService.getItemSuggestionsWithImage(keyword));
+    }
+
 
 }
