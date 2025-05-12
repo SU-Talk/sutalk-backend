@@ -163,31 +163,30 @@ public class ItemService {
     }
 
     public void deleteItem(Long itemId) {
-            Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
 
-            // 1. 해당 게시글의 거래 목록 조회
-            List<ItemTransaction> transactions = itemTransactionRepository.findAllByItem_Itemid(itemId);
+        // 거래 내역 조회
+        List<ItemTransaction> transactions = itemTransactionRepository.findAllByItem_Itemid(itemId);
 
-            for (ItemTransaction transaction : transactions) {
-                // 2-1. 거래에 연결된 채팅방 목록 조회
-                List<ChatRoom> chatRooms = chatRoomRepository.findAllByItemTransaction_Transactionid(transaction.getTransactionid());
-
-                for (ChatRoom chatRoom : chatRooms) {
-                    // 2-2. 채팅방에 연결된 메시지 삭제
-                    chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoom.getChatroomid());
-                }
-
-                // 2-3. 채팅방 삭제
-                chatRoomRepository.deleteAll(chatRooms);
+        for (ItemTransaction transaction : transactions) {
+            // 채팅방 조회 및 메시지 삭제
+            List<ChatRoom> chatRooms = chatRoomRepository.findAllByItemTransaction_Transactionid(transaction.getTransactionid());
+            for (ChatRoom chatRoom : chatRooms) {
+                chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoom.getChatroomid());
             }
-
-            // 3. 거래 삭제
-            itemTransactionRepository.deleteAll(transactions);
-
-            // 4. 마지막으로 게시글 삭제
-            itemRepository.delete(item);
+            chatRoomRepository.deleteAll(chatRooms);
         }
+
+        itemTransactionRepository.deleteAll(transactions);
+
+        // 이미지도 함께 삭제
+        itemImageRepository.deleteAll(item.getItemImages());
+
+        // 최종 게시글 삭제
+        itemRepository.delete(item);
+    }
+
 
     public void updateItemStatus(Long itemId, String status) {
         Item item = itemRepository.findById(itemId)
