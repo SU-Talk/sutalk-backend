@@ -5,7 +5,6 @@ import com.sutalk.backend.repository.SearchHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,24 +12,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SearchService {
-
     private final SearchHistoryRepository searchHistoryRepository;
 
-    // [추가] 연관 검색어 추천 기능
+    // 연관 검색어 추천
     @Transactional(readOnly = true)
     public List<String> getSuggestions(String keyword) {
         return searchHistoryRepository
-                .findTop5ByKeywordContainingOrderBySearchedAtDesc(keyword)
+                .findTop5ByKeywordContainingOrderBySearchAtDesc(keyword)
                 .stream()
                 .map(History::getKeyword)
-                .distinct() // 중복 제거
+                .distinct()
                 .collect(Collectors.toList());
     }
 
-    // 기존 검색 기록 조회
+    // 검색 기록 조회
     @Transactional(readOnly = true)
     public List<String> getSearchHistory() {
-        List<History> histories = searchHistoryRepository.findAllByOrderBySearchedAtDesc();
+        List<History> histories = searchHistoryRepository.findAllByOrderBySearchAtDesc();
         return histories.stream()
                 .map(History::getKeyword)
                 .collect(Collectors.toList());
@@ -39,10 +37,10 @@ public class SearchService {
     // 검색 기록 추가
     @Transactional
     public void addSearchHistory(String keyword) {
-        searchHistoryRepository.deleteByKeyword(keyword); // 중복 삭제
+        searchHistoryRepository.deleteByKeyword(keyword);
         History history = History.builder()
                 .keyword(keyword)
-                .searchedAt(LocalDateTime.now())
+                .searchAt(LocalDateTime.now()) // 필드명에 맞춤
                 .build();
         searchHistoryRepository.save(history);
     }
