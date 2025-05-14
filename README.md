@@ -166,11 +166,12 @@ ERD 기반 Entity 보완 및 연관관계 최적화
 # 📌 개발 현황
 
 ```
-✅ AWS RDS 데이터베이스 설정 완료
-✅ Entity 및 Repository 구성 완료
-✅ Dockerfile 작성 및 Docker 빌드 테스트 완료
-✅ GitHub Actions를 통한 EC2 자동 배포 구성 완료
-✅ EC2 인스턴스 연결 및 Docker 기반 배포 성공
-🔜 비즈니스 로직 구현 및 API 테스트
+✅ AWS RDS 데이터베이스 설정 완료  
+✅ Entity 및 Repository 구성 완료  
+✅ Dockerfile 작성 및 Docker 빌드 테스트 완료  
+✅ GitHub Actions를 통한 EC2 자동 배포 구성 완료  
+✅ EC2 인스턴스 연결 및 Docker 기반 배포 성공  
+✅ 주요 비즈니스 로직 및 핵심 기능 구현 완료  
+🔜 사용자 연동 및 관심 기능 추가 개발 예정
 
 ```
