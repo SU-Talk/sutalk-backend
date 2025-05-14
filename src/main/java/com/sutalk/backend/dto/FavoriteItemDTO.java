@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,7 +14,7 @@ import lombok.Setter;
 public class FavoriteItemDTO {
     private Long itemid;
     private String title;
-    private String thumbnail;
     private Integer price;
     private Long likeCount;
+    private List<String> itemImages; // ✅ 추가!
 }

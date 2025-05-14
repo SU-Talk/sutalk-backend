@@ -66,14 +66,20 @@ public class ItemLikeService {
                 .map(like -> {
                     Item item = like.getItem();
                     Long count = itemLikeRepository.countByItem(item);
+                    List<String> imagePaths = item.getItemImages().stream()
+                            .map(image -> image.getPhotoPath())
+                            .toList();
+
                     return new FavoriteItemDTO(
                             item.getItemid(),
                             item.getTitle(),
-                            item.getThumbnail(),
                             item.getPrice(),
-                            count
+                            count,
+                            imagePaths // ✅ 여기서 이미지 경로 리스트 전달
                     );
-                }).toList();
+                })
+                .toList();
     }
+
 
 }
