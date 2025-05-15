@@ -44,4 +44,22 @@ public class UserController {
     public List<Review> getReviewsForUser(@PathVariable String userid) {
         return reviewRepository.findByReviewee_Userid(userid);
     }
+
+    // ✅ 회원가입
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        if (userRepository.existsById(user.getUserid())) {
+            throw new RuntimeException("이미 존재하는 ID입니다.");
+        }
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(saved);
+    }
+
+    // ✅ 로그인용 사용자 존재 여부 확인
+    @GetMapping("/{userid}/check")
+    public ResponseEntity<User> getUserById(@PathVariable String userid) {
+        return userRepository.findById(userid)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
