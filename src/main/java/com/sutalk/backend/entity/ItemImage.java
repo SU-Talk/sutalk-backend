@@ -15,6 +15,7 @@ public class ItemImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long photoid;
 
+    @Column(name = "photo_path")
     private String photoPath;
 
     private LocalDateTime regdate;

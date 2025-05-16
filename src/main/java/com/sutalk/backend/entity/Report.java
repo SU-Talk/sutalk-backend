@@ -31,4 +31,12 @@ public class Report {
     private String reason;
 
     private Long regdate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    public enum Status {
+        접수, 처리중, 완료
+    }
 }

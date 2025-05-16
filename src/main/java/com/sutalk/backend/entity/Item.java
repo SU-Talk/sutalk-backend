@@ -2,7 +2,9 @@ package com.sutalk.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -13,29 +15,23 @@ import java.util.List;
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ← 이거 꼭 있어야 해!
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemid;
 
-
-    private String comment;
-    private String thumbnail;
-    private String time;
-
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerid")
+    @JoinColumn(name = "seller_userid", referencedColumnName = "userid")
     private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_userid")
+    @JoinColumn(name = "buyer_userid", referencedColumnName = "userid")
     private User buyer;
-
 
 
     @Column(nullable = false)
     private String title;
 
-
+    @Column(name = "meet_location")
+    private String meetLocation;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -50,9 +46,23 @@ public class Item {
 
     private Long regdate;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemImage> images;
+    @Column(name = "completed_date")
+    private LocalDateTime completedDate;
 
+    private String comment;
+
+    private String thumbnail;
+
+    private String time;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemImage> itemImages = new ArrayList<>();
+
+    public void addItemImage(ItemImage image) {
+        this.itemImages.add(image);
+        image.setItem(this);
+    }
 
     public enum Status {
         판매중, 예약중, 거래완료
