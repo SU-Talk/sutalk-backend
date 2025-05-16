@@ -1,5 +1,6 @@
 package com.sutalk.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -24,10 +25,12 @@ public class User {
 
     private String password;
 
-    // 연관 관계
+    // ✅ 순환참조 방지
+    @JsonManagedReference(value = "user-seller")
     @OneToMany(mappedBy = "seller")
     private List<Item> sellingItems;
 
+    @JsonManagedReference(value = "user-buyer")
     @OneToMany(mappedBy = "buyer")
     private List<Item> buyingItems;
 

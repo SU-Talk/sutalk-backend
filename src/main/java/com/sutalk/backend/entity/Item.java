@@ -1,5 +1,6 @@
 package com.sutalk.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,14 +19,16 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemid;
 
+    // ✅ 순환참조 방지
+    @JsonBackReference(value = "user-seller")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_userid", referencedColumnName = "userid")
     private User seller;
 
+    @JsonBackReference(value = "user-buyer")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_userid", referencedColumnName = "userid")
     private User buyer;
-
 
     @Column(nullable = false)
     private String title;
