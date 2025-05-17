@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
+        with:
+          submodules: false  # ← 이 한 줄 추가!
 
       - name: Set up SSH key
         run: |
