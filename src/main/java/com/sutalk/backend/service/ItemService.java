@@ -4,12 +4,7 @@ import com.sutalk.backend.dto.ItemRegisterRequestDTO;
 import com.sutalk.backend.dto.ItemResponseDTO;
 import com.sutalk.backend.dto.ItemSuggestionDTO;
 import com.sutalk.backend.entity.*;
-import com.sutalk.backend.repository.ChatRoomRepository;
-import com.sutalk.backend.repository.ChatMessageRepository;
-import com.sutalk.backend.repository.ItemImageRepository;
-import com.sutalk.backend.repository.ItemRepository;
-import com.sutalk.backend.repository.ItemTransactionRepository;
-import com.sutalk.backend.repository.UserRepository;
+import com.sutalk.backend.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +29,8 @@ public class ItemService {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ItemTransactionRepository itemTransactionRepository;
+    private final ItemLikeRepository itemLikeRepository;
+
 
     @PersistenceContext
     private EntityManager em;
@@ -94,8 +91,9 @@ public class ItemService {
                 .build();
 
         if (images != null && !images.isEmpty()) {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/";
-            Path uploadPath = Paths.get(uploadDir);
+            String frontendUploadPath = "C:/SuTalk-FE/syu-project/public/uploads";
+            System.out.println("✅ 이미지 저장 경로: " + frontendUploadPath);
+            Path uploadPath = Paths.get(frontendUploadPath);
             try {
                 Files.createDirectories(uploadPath);
             } catch (IOException e) {
@@ -136,8 +134,9 @@ public class ItemService {
         item.getItemImages().clear();
 
         if (images != null && !images.isEmpty()) {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/";
-            Path uploadPath = Paths.get(uploadDir);
+
+            String frontendUploadPath = "C:/SuTalk-FE/syu-project/public/uploads";
+            Path uploadPath = Paths.get(frontendUploadPath);
             try {
                 Files.createDirectories(uploadPath);
             } catch (IOException e) {
@@ -164,14 +163,38 @@ public class ItemService {
     }
 
     public void deleteItem(Long itemId) {
+        itemLikeRepository.deleteByItemId(itemId);
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
 
-        // 거래 내역 조회
+        // 🔥 실제 이미지 파일 삭제
+        for (ItemImage img : item.getItemImages()) {
+            String filename = img.getPhotoPath().substring(img.getPhotoPath().lastIndexOf("/") + 1);
+
+            // 원본 이미지 경로
+            Path imagePath = Paths.get("C:/SuTalk-FE/syu-project/public/uploads", filename);
+            try {
+                Files.deleteIfExists(imagePath);
+                System.out.println("🗑️ 삭제된 이미지 파일: " + imagePath);
+            } catch (IOException e) {
+                System.err.println("❌ 이미지 파일 삭제 실패: " + e.getMessage());
+            }
+
+            // 썸네일 이미지 경로
+            Path thumbPath = Paths.get("C:/SuTalk-FE/syu-project/public/uploads/thumbnails", "thumb_" + filename);
+            try {
+                Files.deleteIfExists(thumbPath);
+                System.out.println("🗑️ 삭제된 썸네일: " + thumbPath);
+            } catch (IOException e) {
+                System.err.println("❌ 썸네일 삭제 실패: " + e.getMessage());
+            }
+        }
+
+        // 🧹 관련 거래 및 채팅 기록 삭제
         List<ItemTransaction> transactions = itemTransactionRepository.findAllByItem_Itemid(itemId);
 
         for (ItemTransaction transaction : transactions) {
-            // 채팅방 조회 및 메시지 삭제
             List<ChatRoom> chatRooms = chatRoomRepository.findAllByItemTransaction_Transactionid(transaction.getTransactionid());
             for (ChatRoom chatRoom : chatRooms) {
                 chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoom.getChatroomid());
@@ -181,10 +204,10 @@ public class ItemService {
 
         itemTransactionRepository.deleteAll(transactions);
 
-        // 이미지도 함께 삭제
+        // 🗂 이미지 DB 레코드 삭제
         itemImageRepository.deleteAll(item.getItemImages());
 
-        // 최종 게시글 삭제
+        // 📦 게시글 최종 삭제
         itemRepository.delete(item);
     }
 
@@ -194,22 +217,19 @@ public class ItemService {
                 .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
 
         try {
-            Item.Status newStatus = Item.Status.valueOf(status); // ENUM 변환
+            Item.Status newStatus = Item.Status.valueOf(status);
             item.setStatus(newStatus);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("유효하지 않은 상태 값입니다: " + status);
         }
     }
 
-    // ✨ 구매자 기준 거래완료 글 목록
     public List<ItemResponseDTO> getCompletedItemsByBuyer(String buyerId) {
         return itemRepository.findCompletedByBuyerUserId(buyerId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-
-    // 연관 키워드 추천 기능
     @Transactional(readOnly = true)
     public List<ItemSuggestionDTO> getItemSuggestionsWithImage(String keyword) {
         return itemRepository.findTop10ByKeyword(keyword).stream()
@@ -222,12 +242,10 @@ public class ItemService {
                 ))
                 .toList();
     }
+
     public List<ItemResponseDTO> getItemsBySeller(String sellerId) {
         return itemRepository.findBySellerUserIdWithImages(sellerId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
-
-
-
 }
