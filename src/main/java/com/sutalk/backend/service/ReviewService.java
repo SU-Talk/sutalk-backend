@@ -1,6 +1,8 @@
 package com.sutalk.backend.service;
 
 import com.sutalk.backend.dto.ReviewRequestDTO;
+import com.sutalk.backend.dto.ReviewResponseDTO;
+import com.sutalk.backend.dto.ReviewSummaryDTO;
 import com.sutalk.backend.entity.Item;
 import com.sutalk.backend.entity.ItemTransaction;
 import com.sutalk.backend.entity.Review;
@@ -11,14 +13,11 @@ import com.sutalk.backend.repository.ReviewRepository;
 import com.sutalk.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.sutalk.backend.dto.ReviewResponseDTO;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
@@ -26,11 +25,8 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ItemTransactionRepository itemTransactionRepository;
 
-
-    public List<ReviewResponseDTO> getReviewsForSeller(String sellerId) {
-        return reviewRepository.findByReviewee_Userid(sellerId).stream()
-                .map(ReviewResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+    public List<ReviewSummaryDTO> getReviewSummariesBySeller(String sellerId) {
+        return reviewRepository.findReviewSummariesBySellerId(sellerId);
     }
 
     public void createReview(ReviewRequestDTO dto) {
@@ -51,7 +47,7 @@ public class ReviewService {
         review.setItem(item);
         review.setBuyer(buyer);
         review.setReviewee(reviewee);
-        review.setReviewer(buyer); // 리뷰 작성자는 보통 구매자
+        review.setReviewer(buyer);
         review.setTransaction(transaction);
         review.setRating(dto.getRating());
         review.setComment(dto.getComment());
