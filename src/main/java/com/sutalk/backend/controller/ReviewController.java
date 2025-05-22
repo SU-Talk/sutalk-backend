@@ -1,19 +1,13 @@
 package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ReviewRequestDTO;
+import com.sutalk.backend.dto.ReviewSummaryDTO;
 import com.sutalk.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.sutalk.backend.dto.ReviewResponseDTO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +23,8 @@ public class ReviewController {
     }
 
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<List<ReviewResponseDTO>> getReviewsBySeller(@PathVariable String sellerId) {
-        List<ReviewResponseDTO> reviews = reviewService.getReviewsForSeller(sellerId);
+    public ResponseEntity<List<ReviewSummaryDTO>> getReviewsBySeller(@PathVariable String sellerId) {
+        List<ReviewSummaryDTO> reviews = reviewService.getReviewSummariesBySeller(sellerId);
         return ResponseEntity.ok(reviews);
     }
 }
