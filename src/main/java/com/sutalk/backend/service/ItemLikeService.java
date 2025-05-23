@@ -9,8 +9,10 @@ import com.sutalk.backend.repository.ItemRepository;
 import com.sutalk.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class ItemLikeService {
     private final UserRepository userRepository;
     private final ItemLikeRepository itemLikeRepository;
 
+    @Transactional
     public void likeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
@@ -34,13 +37,15 @@ public class ItemLikeService {
         itemLikeRepository.save(like);
     }
 
+    @Transactional
     public void unlikeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        itemLikeRepository.deleteByItemAndUser(item, user);
+        Optional<ItemLike> likeOpt = itemLikeRepository.findByItemAndUser(item, user);
+        likeOpt.ifPresent(itemLikeRepository::delete);
     }
 
     public boolean isLiked(Long itemId, String userId) {
@@ -75,11 +80,9 @@ public class ItemLikeService {
                             item.getTitle(),
                             item.getPrice(),
                             count,
-                            imagePaths // ✅ 여기서 이미지 경로 리스트 전달
+                            imagePaths
                     );
                 })
                 .toList();
     }
-
-
 }

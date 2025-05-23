@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,14 +31,22 @@ public class ChatMessageService {
                 .chatRoom(chatRoom)
                 .sender(sender)
                 .content(dto.getContent())
-                .sentAt(System.currentTimeMillis())
+                .sentAt(LocalDateTime.now())
                 .isRead(false)
                 .build();
 
-        chatMessageRepository.save(message);
+        ChatMessage saved = chatMessageRepository.save(message);
 
-        messagingTemplate.convertAndSend("/topic/chat/" + dto.getChatRoomId(), dto);
+        // ✅ sentAt 포함된 DTO로 새로 구성해서 전송
+        MessageDTO responseDTO = new MessageDTO();
+        responseDTO.setChatRoomId(saved.getChatRoom().getChatroomid());
+        responseDTO.setSenderId(saved.getSender().getUserid());
+        responseDTO.setContent(saved.getContent());
+        responseDTO.setSentAt(saved.getSentAt()); // ✅ 이게 중요
+
+        messagingTemplate.convertAndSend("/topic/chat/" + dto.getChatRoomId(), responseDTO);
     }
+
 
     public List<ChatMessage> getMessagesByChatRoom(Long chatRoomId) {
         return chatMessageRepository.findByChatRoom_ChatroomidOrderBySentAtAsc(chatRoomId);

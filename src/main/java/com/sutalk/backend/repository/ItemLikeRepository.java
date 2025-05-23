@@ -18,7 +18,6 @@ public interface ItemLikeRepository extends JpaRepository<ItemLike, Long> {
     boolean existsByItemAndUser(Item item, User user);
     void deleteByItemAndUser(Item item, User user);
 
-    // ✅ itemid 기준으로 좋아요 전부 삭제
     @Modifying
     @Query("DELETE FROM ItemLike il WHERE il.item.itemid = :itemid")
     void deleteByItemId(@Param("itemid") Long itemid);
