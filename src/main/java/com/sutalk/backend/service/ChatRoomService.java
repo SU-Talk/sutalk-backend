@@ -92,7 +92,17 @@ public class ChatRoomService {
 
     @Transactional
     public void deleteChatRoom(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+
+        // 1. 채팅 메시지 먼저 삭제
         chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoomId);
-        chatRoomRepository.deleteById(chatRoomId);
+
+        // 2. ChatRoom 엔티티에서 itemTransaction 연관 해제 (nullable 해야 함)
+        chatRoom.setItemTransaction(null); // 💡 여기가 포인트
+
+        // 3. ChatRoom 삭제
+        chatRoomRepository.delete(chatRoom);
     }
+
 }
