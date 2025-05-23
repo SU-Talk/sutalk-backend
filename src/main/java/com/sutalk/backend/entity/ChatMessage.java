@@ -3,6 +3,8 @@ package com.sutalk.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -27,7 +29,7 @@ public class ChatMessage {
     private String content;
 
     @Column(name = "sent_at")
-    private Long sentAt;
+    private LocalDateTime sentAt;
 
     @Column(name = "is_read")
     private Boolean isRead = false;
