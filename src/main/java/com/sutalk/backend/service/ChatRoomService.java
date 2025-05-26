@@ -25,84 +25,102 @@ public class ChatRoomService {
     private final ItemTransactionRepository itemTransactionRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 채팅방 생성
+     */
     public ChatRoomResponseDTO createChatRoom(Long transactionId, String buyerId, String sellerId) {
-        System.out.println("📥 [채팅방 생성 요청] transactionId=" + transactionId + ", buyerId=" + buyerId + ", sellerId=" + sellerId);
-
-        // 거래 정보 조회
         ItemTransaction transaction = itemTransactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
         Item item = transaction.getItem();
 
-        // ✅ 거래 ID 기준 중복 방 방지
         ChatRoom room = chatRoomRepository
                 .findByItemTransaction_Transactionid(transactionId)
                 .orElseGet(() -> {
-                    System.out.println("🆕 [신규 채팅방 생성]");
                     User buyer = userRepository.findById(buyerId)
                             .orElseThrow(() -> new RuntimeException("구매자 정보를 찾을 수 없습니다."));
                     User seller = userRepository.findById(sellerId)
                             .orElseThrow(() -> new RuntimeException("판매자 정보를 찾을 수 없습니다."));
 
-                    ChatRoom newRoom = ChatRoom.builder()
+                    return chatRoomRepository.save(ChatRoom.builder()
                             .itemTransaction(transaction)
                             .buyer(buyer)
                             .seller(seller)
                             .createdAt(System.currentTimeMillis())
-                            .build();
-
-                    ChatRoom saved = chatRoomRepository.save(newRoom);
-                    System.out.println("✅ [채팅방 저장 성공] ID: " + saved.getChatroomid());
-                    return saved;
+                            .build());
                 });
 
-        // 응답 DTO 구성
+        // ✅ itemImages 리스트 추출
+        List<String> itemImages = item.getItemImages().stream()
+                .map(image -> image.getPhotoPath()) // 예: uploads/a.jpg
+                .collect(Collectors.toList());
+
         return new ChatRoomResponseDTO(
                 room.getChatroomid(),
                 item.getItemid(),
                 item.getTitle(),
-                room.getBuyer().getUserid(),        // ✅ buyerId 추가됨
+                room.getBuyer().getUserid(),
                 room.getBuyer().getName(),
                 room.getSeller().getName(),
                 room.getSeller().getUserid(),
-                room.getCreatedAt()
+                room.getCreatedAt(),
+                item.getMeetLocation(),
+                itemImages
         );
     }
 
+    /**
+     * 유저의 모든 채팅방 목록 조회
+     */
     public List<ChatRoomResponseDTO> getChatRoomsByUser(String userId) {
         List<ChatRoom> rooms = chatRoomRepository.findByBuyer_UseridOrSeller_Userid(userId, userId);
 
         return rooms.stream()
-                .map(room -> new ChatRoomResponseDTO(
-                        room.getChatroomid(),
-                        room.getItemTransaction().getItem().getItemid(),
-                        room.getItemTransaction().getItem().getTitle(),
-                        room.getBuyer().getUserid(),        // ✅ buyerId 추가됨
-                        room.getBuyer().getName(),
-                        room.getSeller().getName(),
-                        room.getSeller().getUserid(),
-                        room.getCreatedAt()
-                ))
+                .map(room -> {
+                    Item item = room.getItemTransaction().getItem();
+
+                    List<String> itemImages = item.getItemImages().stream()
+                            .map(image -> image.getPhotoPath())
+                            .collect(Collectors.toList());
+
+                    return new ChatRoomResponseDTO(
+                            room.getChatroomid(),
+                            item.getItemid(),
+                            item.getTitle(),
+                            room.getBuyer().getUserid(),
+                            room.getBuyer().getName(),
+                            room.getSeller().getName(),
+                            room.getSeller().getUserid(),
+                            room.getCreatedAt(),
+                            item.getMeetLocation(),
+                            itemImages
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 단일 채팅방 상세 조회
+     */
     public ChatRoom getChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
     }
 
+    /**
+     * 채팅방 삭제
+     */
     @Transactional
     public void deleteChatRoom(Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
 
-        // 1. 채팅 메시지 먼저 삭제
+        // 1. 채팅 메시지 삭제
         chatMessageRepository.deleteAllByChatRoom_Chatroomid(chatRoomId);
 
-        // 2. ChatRoom 엔티티에서 itemTransaction 연관 해제 (nullable 해야 함)
-        chatRoom.setItemTransaction(null); // 💡 여기가 포인트
+        // 2. 연관된 거래 참조 해제
+        chatRoom.setItemTransaction(null);
 
-        // 3. ChatRoom 삭제
+        // 3. 채팅방 삭제
         chatRoomRepository.delete(chatRoom);
     }
-
 }
