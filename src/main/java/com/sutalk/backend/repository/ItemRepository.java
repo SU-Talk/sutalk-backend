@@ -2,6 +2,7 @@ package com.sutalk.backend.repository;
 
 import com.sutalk.backend.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,14 +22,12 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "WHERE i.itemid = :id")
     Optional<Item> findItemWithSellerAndImagesById(@Param("id") Long id);
 
-    // 기존 판매자용 유지
     @Query("SELECT DISTINCT i FROM Item i " +
             "LEFT JOIN FETCH i.seller s " +
             "LEFT JOIN FETCH i.itemImages " +
             "WHERE s.userid = :userId")
     List<Item> findBySellerUserIdWithImages(@Param("userId") String userId);
 
-    // ✅ 구매자 기준 거래완료된 아이템 조회
     @Query("SELECT DISTINCT i FROM Item i " +
             "LEFT JOIN FETCH i.seller " +
             "LEFT JOIN FETCH i.itemImages " +
@@ -41,4 +40,13 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "ORDER BY i.regdate DESC")
     List<Item> findTop10ByKeyword(@Param("keyword") String keyword);
 
+    // ✅ FK 업데이트용: 판매자 ID 변경
+    @Modifying
+    @Query("UPDATE Item i SET i.seller.userid = :newId WHERE i.seller.userid = :oldId")
+    void updateSellerUserId(@Param("oldId") String oldId, @Param("newId") String newId);
+
+    // ✅ FK 업데이트용: 구매자 ID 변경
+    @Modifying
+    @Query("UPDATE Item i SET i.buyer.userid = :newId WHERE i.buyer.userid = :oldId")
+    void updateBuyerUserId(@Param("oldId") String oldId, @Param("newId") String newId);
 }
