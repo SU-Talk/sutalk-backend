@@ -1,6 +1,7 @@
 package com.sutalk.backend.service;
 
 import com.sutalk.backend.dto.ChatRoomResponseDTO;
+import com.sutalk.backend.entity.ChatMessage;
 import com.sutalk.backend.entity.ChatRoom;
 import com.sutalk.backend.entity.Item;
 import com.sutalk.backend.entity.ItemTransaction;
@@ -13,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,10 +51,16 @@ public class ChatRoomService {
                             .build());
                 });
 
-        // ✅ itemImages 리스트 추출
         List<String> itemImages = item.getItemImages().stream()
-                .map(image -> image.getPhotoPath()) // 예: uploads/a.jpg
+                .map(image -> image.getPhotoPath())
                 .collect(Collectors.toList());
+
+        // 최신 메시지 조회 (sentAt 필드 사용)
+        ChatMessage latestMsg = chatMessageRepository.findTopByChatRoom_ChatroomidOrderBySentAtDesc(room.getChatroomid());
+        String lastMessage = latestMsg != null ? latestMsg.getContent() : "";
+        Long lastMessageTime = (latestMsg != null && latestMsg.getSentAt() != null)
+                ? latestMsg.getSentAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                : null;
 
         return new ChatRoomResponseDTO(
                 room.getChatroomid(),
@@ -64,7 +72,9 @@ public class ChatRoomService {
                 room.getSeller().getUserid(),
                 room.getCreatedAt(),
                 item.getMeetLocation(),
-                itemImages
+                itemImages,
+                lastMessage,
+                lastMessageTime
         );
     }
 
@@ -82,6 +92,13 @@ public class ChatRoomService {
                             .map(image -> image.getPhotoPath())
                             .collect(Collectors.toList());
 
+                    // 최신 메시지 조회 (sentAt 필드 사용)
+                    ChatMessage latestMsg = chatMessageRepository.findTopByChatRoom_ChatroomidOrderBySentAtDesc(room.getChatroomid());
+                    String lastMessage = latestMsg != null ? latestMsg.getContent() : "";
+                    Long lastMessageTime = (latestMsg != null && latestMsg.getSentAt() != null)
+                            ? latestMsg.getSentAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            : null;
+
                     return new ChatRoomResponseDTO(
                             room.getChatroomid(),
                             item.getItemid(),
@@ -92,7 +109,9 @@ public class ChatRoomService {
                             room.getSeller().getUserid(),
                             room.getCreatedAt(),
                             item.getMeetLocation(),
-                            itemImages
+                            itemImages,
+                            lastMessage,
+                            lastMessageTime
                     );
                 })
                 .collect(Collectors.toList());

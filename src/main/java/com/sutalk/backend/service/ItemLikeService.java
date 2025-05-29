@@ -23,30 +23,34 @@ public class ItemLikeService {
     private final ItemLikeRepository itemLikeRepository;
 
     @Transactional
-    public void likeItem(Long itemId, String userId) {
+    public Long likeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (itemLikeRepository.existsByItemAndUser(item, user)) return;
-
-        ItemLike like = new ItemLike();
-        like.setItem(item);
-        like.setUser(user);
-        itemLikeRepository.save(like);
+        if (!itemLikeRepository.existsByItemAndUser(item, user)) {
+            ItemLike like = new ItemLike();
+            like.setItem(item);
+            like.setUser(user);
+            itemLikeRepository.save(like);
+        }
+        return itemLikeRepository.countByItem(item);
     }
 
     @Transactional
-    public void unlikeItem(Long itemId, String userId) {
+    public Long unlikeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Optional<ItemLike> likeOpt = itemLikeRepository.findByItemAndUser(item, user);
-        likeOpt.ifPresent(itemLikeRepository::delete);
+        itemLikeRepository.findByItemAndUser(item, user)
+                .ifPresent(itemLikeRepository::delete);
+
+        return itemLikeRepository.countByItem(item);
     }
+
 
     public boolean isLiked(Long itemId, String userId) {
         return itemLikeRepository.existsByItemAndUser(

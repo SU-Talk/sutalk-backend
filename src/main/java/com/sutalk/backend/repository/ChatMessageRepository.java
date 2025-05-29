@@ -7,10 +7,12 @@ import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    List<ChatMessage> findByChatRoom_ChatroomidOrderBySentAtAsc(Long chatroomid);
+    // 채팅방의 모든 메시지 sentAt 오름차순(=채팅방 메시지 내역 조회)
+    List<ChatMessage> findByChatRoom_ChatroomidOrderBySentAtAsc(Long chatRoomId);
 
-    void deleteByChatRoom_Chatroomid(Long chatroomId);
+    // 채팅방별 최신 메시지 1개 sentAt 내림차순 (최신 메시지)
+    ChatMessage findTopByChatRoom_ChatroomidOrderBySentAtDesc(Long chatRoomId);
 
-    // ✅ 추가
-    void deleteAllByChatRoom_Chatroomid(Long chatroomid);
+    // 해당 채팅방의 모든 메시지 삭제
+    void deleteAllByChatRoom_Chatroomid(Long chatRoomId);
 }

@@ -40,25 +40,19 @@ public class ChatRoomController {
         ChatRoom room = chatRoomService.getChatRoomById(chatRoomId);
         Item item = room.getItemTransaction().getItem();
 
-        // ✅ itemImages 추출해서 List<String> 생성
         List<String> itemImages = item.getItemImages().stream()
                 .map(image -> image.getPhotoPath())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ChatRoomResponseDTO(
-                room.getChatroomid(),
-                item.getItemid(),
-                item.getTitle(),
-                room.getBuyer().getUserid(),
-                room.getBuyer().getName(),
-                room.getSeller().getName(),
-                room.getSeller().getUserid(),
-                room.getCreatedAt(),
-                item.getMeetLocation(),
-                itemImages // 🔥 여기!
-        ));
+        // 최신 메시지 조회
+        // (필요하다면 ChatRoomService에서 DTO로 변환하는 메서드를 따로 만들어도 됨)
+        return ResponseEntity.ok(
+                chatRoomService.getChatRoomsByUser(room.getBuyer().getUserid()).stream()
+                        .filter(dto -> dto.getChatroomId().equals(chatRoomId))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("채팅방 DTO를 찾을 수 없습니다."))
+        );
     }
-
 
     @DeleteMapping("/{chatRoomId}")
     public ResponseEntity<Void> deleteChatRoom(@PathVariable Long chatRoomId) {

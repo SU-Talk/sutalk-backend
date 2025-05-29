@@ -16,7 +16,10 @@ public class ChatRoomResponseDTO {
     private String sellerUsername;
     private String sellerId;
     private Long createdAt;
-
     private String meetLocation;
-    private List<String> itemImages; // ✅ itemImages 직접 추가!
+    private List<String> itemImages;
+
+    // 최신 메시지 관련 필드
+    private String lastMessage;
+    private Long lastMessageTime; // epoch millis
 }

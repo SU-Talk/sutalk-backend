@@ -91,9 +91,9 @@ public class ItemService {
                 .build();
 
         if (images != null && !images.isEmpty()) {
-            String frontendUploadPath = "C:/SuTalk-FE/syu-project/public/uploads";
-            System.out.println("✅ 이미지 저장 경로: " + frontendUploadPath);
-            Path uploadPath = Paths.get(frontendUploadPath);
+            String backendUploadPath = Paths.get(System.getProperty("user.dir"), "uploads").toString();
+            System.out.println("✅ 이미지 저장 경로: " + backendUploadPath);
+            Path uploadPath = Paths.get(backendUploadPath);
             try {
                 Files.createDirectories(uploadPath);
             } catch (IOException e) {
@@ -120,6 +120,7 @@ public class ItemService {
 
         return itemRepository.save(item).getItemid();
     }
+
 
     public void updateItem(Long itemId, ItemRegisterRequestDTO requestDTO, List<MultipartFile> images) {
         Item item = itemRepository.findById(itemId)
