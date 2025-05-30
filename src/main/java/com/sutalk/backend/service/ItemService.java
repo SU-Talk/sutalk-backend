@@ -31,9 +31,11 @@ public class ItemService {
     private final ItemTransactionRepository itemTransactionRepository;
     private final ItemLikeRepository itemLikeRepository;
 
-
     @PersistenceContext
     private EntityManager em;
+
+    private final String UPLOAD_DIR = "C:/SuTalk-FE/syu-project/public/uploads";
+    private final String THUMBNAIL_DIR = "C:/SuTalk-FE/syu-project/public/uploads/thumbnails";
 
     public Item getItemById(Long id) {
         return itemRepository.findById(id)
@@ -56,6 +58,10 @@ public class ItemService {
         return itemRepository.findBySellerUserIdWithImages(userId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<ItemResponseDTO> getItemsBySeller(String sellerId) {
+        return getItemsBySellerId(sellerId);
     }
 
     public ItemResponseDTO toResponseDTO(Item item) {
@@ -90,33 +96,7 @@ public class ItemService {
                 .regdate(System.currentTimeMillis())
                 .build();
 
-        if (images != null && !images.isEmpty()) {
-            String frontendUploadPath = "C:/SuTalk-FE/syu-project/public/uploads";
-            System.out.println("✅ 이미지 저장 경로: " + frontendUploadPath);
-            Path uploadPath = Paths.get(frontendUploadPath);
-            try {
-                Files.createDirectories(uploadPath);
-            } catch (IOException e) {
-                throw new RuntimeException("디렉토리 생성 실패: " + e.getMessage());
-            }
-
-            for (MultipartFile file : images) {
-                try {
-                    String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-                    String saveFileName = UUID.randomUUID().toString().replace("-", "") + ext;
-                    Path filePath = uploadPath.resolve(saveFileName);
-                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                    ItemImage image = ItemImage.builder()
-                            .photoPath("/uploads/" + saveFileName)
-                            .regdate(LocalDateTime.now())
-                            .build();
-                    item.addItemImage(image);
-                } catch (IOException e) {
-                    throw new RuntimeException("이미지 저장 실패: " + e.getMessage());
-                }
-            }
-        }
+        saveImages(images, item);
 
         return itemRepository.save(item).getItemid();
     }
@@ -133,31 +113,33 @@ public class ItemService {
 
         item.getItemImages().clear();
 
-        if (images != null && !images.isEmpty()) {
+        saveImages(images, item);
+    }
 
-            String frontendUploadPath = "C:/SuTalk-FE/syu-project/public/uploads";
-            Path uploadPath = Paths.get(frontendUploadPath);
+    private void saveImages(List<MultipartFile> images, Item item) {
+        if (images == null || images.isEmpty()) return;
+
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        try {
+            Files.createDirectories(uploadPath);
+        } catch (IOException e) {
+            throw new RuntimeException("디렉토리 생성 실패: " + e.getMessage());
+        }
+
+        for (MultipartFile file : images) {
             try {
-                Files.createDirectories(uploadPath);
+                String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+                String saveFileName = UUID.randomUUID().toString().replace("-", "") + ext;
+                Path filePath = uploadPath.resolve(saveFileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                ItemImage image = ItemImage.builder()
+                        .photoPath("/uploads/" + saveFileName)
+                        .regdate(LocalDateTime.now())
+                        .build();
+                item.addItemImage(image);
             } catch (IOException e) {
-                throw new RuntimeException("디렉토리 생성 실패: " + e.getMessage());
-            }
-
-            for (MultipartFile file : images) {
-                try {
-                    String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-                    String saveFileName = UUID.randomUUID().toString().replace("-", "") + ext;
-                    Path filePath = uploadPath.resolve(saveFileName);
-                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                    ItemImage image = ItemImage.builder()
-                            .photoPath("/uploads/" + saveFileName)
-                            .regdate(LocalDateTime.now())
-                            .build();
-                    item.addItemImage(image);
-                } catch (IOException e) {
-                    throw new RuntimeException("이미지 저장 실패: " + e.getMessage());
-                }
+                throw new RuntimeException("이미지 저장 실패: " + e.getMessage());
             }
         }
     }
@@ -168,32 +150,18 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
 
-        // 🔥 실제 이미지 파일 삭제
         for (ItemImage img : item.getItemImages()) {
             String filename = img.getPhotoPath().substring(img.getPhotoPath().lastIndexOf("/") + 1);
 
-            // 원본 이미지 경로
-            Path imagePath = Paths.get("C:/SuTalk-FE/syu-project/public/uploads", filename);
             try {
-                Files.deleteIfExists(imagePath);
-                System.out.println("🗑️ 삭제된 이미지 파일: " + imagePath);
+                Files.deleteIfExists(Paths.get(UPLOAD_DIR, filename));
+                Files.deleteIfExists(Paths.get(THUMBNAIL_DIR, "thumb_" + filename));
             } catch (IOException e) {
-                System.err.println("❌ 이미지 파일 삭제 실패: " + e.getMessage());
-            }
-
-            // 썸네일 이미지 경로
-            Path thumbPath = Paths.get("C:/SuTalk-FE/syu-project/public/uploads/thumbnails", "thumb_" + filename);
-            try {
-                Files.deleteIfExists(thumbPath);
-                System.out.println("🗑️ 삭제된 썸네일: " + thumbPath);
-            } catch (IOException e) {
-                System.err.println("❌ 썸네일 삭제 실패: " + e.getMessage());
+                System.err.println("❌ 파일 삭제 실패: " + e.getMessage());
             }
         }
 
-        // 🧹 관련 거래 및 채팅 기록 삭제
         List<ItemTransaction> transactions = itemTransactionRepository.findAllByItem_Itemid(itemId);
-
         for (ItemTransaction transaction : transactions) {
             List<ChatRoom> chatRooms = chatRoomRepository.findAllByItemTransaction_Transactionid(transaction.getTransactionid());
             for (ChatRoom chatRoom : chatRooms) {
@@ -201,24 +169,16 @@ public class ItemService {
             }
             chatRoomRepository.deleteAll(chatRooms);
         }
-
         itemTransactionRepository.deleteAll(transactions);
-
-        // 🗂 이미지 DB 레코드 삭제
         itemImageRepository.deleteAll(item.getItemImages());
-
-        // 📦 게시글 최종 삭제
         itemRepository.delete(item);
     }
-
 
     public void updateItemStatus(Long itemId, String status) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NoSuchElementException("해당 ID의 게시글이 존재하지 않습니다."));
-
         try {
-            Item.Status newStatus = Item.Status.valueOf(status);
-            item.setStatus(newStatus);
+            item.setStatus(Item.Status.valueOf(status));
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("유효하지 않은 상태 값입니다: " + status);
         }
@@ -239,13 +199,6 @@ public class ItemService {
                         item.getItemImages() != null && !item.getItemImages().isEmpty()
                                 ? item.getItemImages().get(0).getPhotoPath()
                                 : null
-                ))
-                .toList();
-    }
-
-    public List<ItemResponseDTO> getItemsBySeller(String sellerId) {
-        return itemRepository.findBySellerUserIdWithImages(sellerId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+                )).toList();
     }
 }

@@ -22,6 +22,7 @@ public class ItemLikeService {
     private final UserRepository userRepository;
     private final ItemLikeRepository itemLikeRepository;
 
+    // 좋아요 추가
     @Transactional
     public void likeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
@@ -29,14 +30,15 @@ public class ItemLikeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (itemLikeRepository.existsByItemAndUser(item, user)) return;
-
-        ItemLike like = new ItemLike();
-        like.setItem(item);
-        like.setUser(user);
-        itemLikeRepository.save(like);
+        if (!itemLikeRepository.existsByItemAndUser(item, user)) {
+            ItemLike like = new ItemLike();
+            like.setItem(item);
+            like.setUser(user);
+            itemLikeRepository.save(like);
+        }
     }
 
+    // 좋아요 취소
     @Transactional
     public void unlikeItem(Long itemId, String userId) {
         Item item = itemRepository.findById(itemId)
@@ -44,23 +46,27 @@ public class ItemLikeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Optional<ItemLike> likeOpt = itemLikeRepository.findByItemAndUser(item, user);
-        likeOpt.ifPresent(itemLikeRepository::delete);
+        itemLikeRepository.findByItemAndUser(item, user)
+                .ifPresent(itemLikeRepository::delete);
     }
 
+    // 좋아요 여부
     public boolean isLiked(Long itemId, String userId) {
-        return itemLikeRepository.existsByItemAndUser(
-                itemRepository.findById(itemId).orElseThrow(),
-                userRepository.findById(userId).orElseThrow()
-        );
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return itemLikeRepository.existsByItemAndUser(item, user);
     }
 
+    // 좋아요 개수
     public Long countLikes(Long itemId) {
-        return itemLikeRepository.countByItem(
-                itemRepository.findById(itemId).orElseThrow()
-        );
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+        return itemLikeRepository.countByItem(item);
     }
 
+    // 특정 유저의 좋아요 목록
     public List<FavoriteItemDTO> getUserFavorites(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
