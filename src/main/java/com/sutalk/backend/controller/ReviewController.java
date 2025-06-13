@@ -1,6 +1,7 @@
 package com.sutalk.backend.controller;
 
 import com.sutalk.backend.dto.ReviewRequestDTO;
+import com.sutalk.backend.dto.ReviewResponseDTO;
 import com.sutalk.backend.dto.ReviewSummaryDTO;
 import com.sutalk.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -27,4 +28,11 @@ public class ReviewController {
         List<ReviewSummaryDTO> reviews = reviewService.getReviewSummariesBySeller(sellerId);
         return ResponseEntity.ok(reviews);
     }
+
+    @GetMapping("/seller/{sellerId}/detailed")
+    public ResponseEntity<List<ReviewResponseDTO>> getDetailedReviews(@PathVariable String sellerId) {
+        List<ReviewResponseDTO> reviews = reviewService.getReviewsBySellerDetailed(sellerId);
+        return ResponseEntity.ok(reviews);
+    }
+
 }

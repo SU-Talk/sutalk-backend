@@ -15,6 +15,7 @@ public class ReviewResponseDTO {
     private int rating;
     private String comment;
     private String reviewerNickname;
+    private String reviewerUserid; // ✅ 추가
     private LocalDateTime createdAt;
     private String itemTitle; // ← 추가
 
@@ -23,6 +24,7 @@ public class ReviewResponseDTO {
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .reviewerNickname(review.getReviewer().getName())
+                .reviewerUserid(review.getReviewer().getUserid()) // ✅ 추가
                 .itemTitle(review.getItem().getTitle()) // ← 추가
                 .createdAt(review.getCreatedAt())
                 .build();

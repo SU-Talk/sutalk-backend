@@ -17,6 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByItemAndBuyer(Item item, User buyer);
 
     List<Review> findByReviewee_Userid(String sellerId);  // 받은 후기들
+    // ✅ 상세 리뷰용 (Reviewer 이름, 아이템 제목 등 필요할 때)
+    List<Review> findByReviewee_UseridOrderByCreatedAtDesc(String sellerId);
 
     // ✅ 평균 별점 계산용
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.reviewee = :user")
@@ -25,10 +27,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // ✅ 후기 개수 계산용
     int countByReviewee(User user);
 
-    @Query("SELECT new com.sutalk.backend.dto.ReviewSummaryDTO(r.comment, r.rating, r.createdAt, u.name, i.title) " +
+    @Query("SELECT new com.sutalk.backend.dto.ReviewSummaryDTO(r.comment, r.rating, r.createdAt, u.userid, i.title) " +
             "FROM Review r " +
             "JOIN r.reviewer u " +
-            "JOIN r.item i " + // ✅ 아이템 조인 추가
+            "JOIN r.item i " +
             "WHERE r.reviewee.userid = :sellerId " +
             "ORDER BY r.createdAt DESC")
     List<ReviewSummaryDTO> findReviewSummariesBySellerId(@Param("sellerId") String sellerId);

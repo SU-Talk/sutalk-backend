@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,14 @@ public class ReviewService {
     public List<ReviewSummaryDTO> getReviewSummariesBySeller(String sellerId) {
         return reviewRepository.findReviewSummariesBySellerId(sellerId);
     }
+
+    public List<ReviewResponseDTO> getReviewsBySellerDetailed(String sellerId) {
+        List<Review> reviews = reviewRepository.findByReviewee_UseridOrderByCreatedAtDesc(sellerId);
+        return reviews.stream()
+                .map(ReviewResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
 
     public void createReview(ReviewRequestDTO dto) {
         Item item = itemRepository.findById(dto.getItemId())
