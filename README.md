@@ -12,6 +12,26 @@ Spring Boot 기반이며, 데이터베이스는 AWS의 MariaDB RDS를 사용합�
 - **Deployment:** Docker, AWS EC2
 - **CI/CD:** GitHub Actions + Docker 기반 자동 배포
 
+flowchart TD
+    Client[Client / Browser]
+    
+    Client -->|REST API| SpringBoot[Spring Boot Server]
+    Client -->|WebSocket| SpringBoot
+
+    SpringBoot --> MariaDB[(MariaDB RDS)]
+    
+    subgraph CI/CD
+        GitHub[GitHub]
+        GHA[GitHub Actions]
+        DockerHub[Docker Hub]
+    end
+
+    GitHub --> GHA
+    GHA -->|Build & Push| DockerHub
+    DockerHub -->|Pull Image| EC2[AWS EC2]
+    EC2 --> SpringBoot
+
+
 ---
 
 ## 🚩 주의 사항
