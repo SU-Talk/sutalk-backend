@@ -14,24 +14,31 @@ Spring Boot 기반이며, 데이터베이스는 AWS의 MariaDB RDS를 사용합�
 
 
 ```mermaid
-flowchart TD
-    Client[Client / Browser]
-    
-    Client -->|REST API| SpringBoot[Spring Boot Server]
-    Client -->|WebSocket| SpringBoot
+flowchart LR
+  %% Mole PMS Deployment Architecture (clean)
 
-    SpringBoot --> MariaDB[(MariaDB RDS)]
-    
-    subgraph CI/CD
-        GitHub[GitHub]
-        GHA[GitHub Actions]
-        DockerHub[Docker Hub]
+  subgraph SCM["Source & CI/CD"]
+    GH["GitHub"]
+    GHA["GitHub Actions"]
+    DH["Docker Hub"]
+    GH --> GHA -->|build & push image| DH
+  end
+
+  subgraph AWS["AWS"]
+    subgraph EC1["EC2 #1 (Tomcat App)"]
+      APP["Tomcat 9 (WAR)"]
     end
 
-    GitHub --> GHA
-    GHA -->|Build & Push| DockerHub
-    DockerHub -->|Pull Image| EC2[AWS EC2]
-    EC2 --> SpringBoot
+    subgraph EC2["EC2 #2 (DB)"]
+      ORCL[("Oracle 11g (Docker)")]
+    end
+
+    DH -->|pull image| EC1
+    APP -->|SQL| ORCL
+  end
+
+  USER["User / Browser"] -->|HTTP| APP
+
 
 ```
 ---
