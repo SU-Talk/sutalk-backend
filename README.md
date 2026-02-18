@@ -43,11 +43,14 @@ flowchart LR
 ```
 ---
 
-## 🚩 주의 사항
+## 🚩 보안 및 환경 관
 
-데이터베이스 접속 정보는 로컬이나 AWS Secrets Manager 등 별도의 보안 환경에서 관리하시기 바랍니다.  
-EC2 SSH 키 및 RDS 비밀번호 등 민감 정보는 GitHub Secrets로 관리합니다.
+DB 접속 정보는 환경 변수 및 GitHub Secrets를 통해 분리 관리 
+EC2 SSH Key 및 민감 정보는 레포지토리에 포함하지 않음
+서버–DB 간 접근 권한 최소화 설정
 
+초기 S3/CloudFront 기반 구성 시 외부 연계 이슈가 발생하여
+최종적으로 EC2 중심 구조로 전환하여 운영 안정성을 확보하였습니다.
 ---
 
 ## 🔧 프로젝트 DB 연결 예시 (`application.properties`)
@@ -80,7 +83,8 @@ spring.jpa.show-sql=true
 └── test
     └── java - 테스트 코드 작성
 ```
-
+도메인 중심 설계를 기반으로
+게시글 – 거래 – 채팅 – 후기 – 신고 흐름이 연결되도록 모델링하였습니다.
 
 ---
 
@@ -96,7 +100,7 @@ spring.jpa.show-sql=true
 
 게시글 상세 조회 (썸네일, 이미지, 판매자 프로필 포함)
 
-## 💬 채팅 기능
+## 💬 실시간 채팅 (WebSocket)
 채팅방 생성 (상품 + 거래 기반, buyer/seller 자동 연결)
 
 채팅방 목록 조회 (구매자/판매자 기준 필터링)
@@ -106,6 +110,18 @@ WebSocket 기반 실시간 채팅
 채팅 메시지 저장 및 채팅 내역 불러오기
 
 거래 완료 시 채팅 입력창 비활성화 및 안내 표시
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant DB
+
+    Client->>Server: WebSocket 연결
+    Client->>Server: 메시지 전송
+    Server->>DB: 메시지 저장
+    Server->>Client: 실시간 메시지 전달
+```
 
 ## 🔁 거래 시스템
 거래 생성 (buyer, item 기준)
@@ -140,17 +156,6 @@ DB에는 이미지 경로만 저장
 
 첫 번째 이미지를 게시글 썸네일로 활용
 
-## 📌 추후 AWS S3 등 외부 저장소로 이전 가능
-
-## 👤 사용자 관리 (개발 중)
-현재는 test-user-001, test-user-002 등 mock 데이터로 테스트 중
-
-실 사용자 연동은 추후 외부 인증 시스템과 협업 예정
-
-## 🧪 API 테스트
-Postman을 통한 API 검증 진행 중
-
-RestDocs, Swagger 등 문서화 도구 도입 예정
 
 ## 🗂️ ERD 기반 연관 관계 (요약)
 Item ↔ 판매자(User)
@@ -167,7 +172,15 @@ Report ↔ 사용자(User), 게시글(Item)
 
 SearchHistory ↔ 사용자(User)
 
-
+```mermaid
+erDiagram
+    User ||--o{ Item : sells
+    User ||--o{ ItemTransaction : participates
+    Item ||--|| ItemTransaction : related_to
+    ItemTransaction ||--|| ChatRoom : creates
+    ChatRoom ||--o{ ChatMessage : contains
+    ItemTransaction ||--o{ Review : generates
+```
 ---
 
 # 🚀 배포 구성
@@ -181,15 +194,15 @@ EC2 SSH Key, 접속 정보 등은 GitHub Actions Secrets로 관리
 
 ---
 
-# 🚧 향후 작업 계획
+# 📌 최종 결과
 
-사용자 계정 시스템 연동
+교내 인증 기반 안전 거래 구조 구현
 
-관리자 페이지 및 제재 시스템
+실시간 채팅 및 거래 연동 로직 완성
 
-추천 알고리즘 및 인기 키워드 분석
+클라우드 환경에서 정상 서비스 구동 및 시연 완료
 
-배포 보안 및 성능 최적화
+자동 배포 환경 구축 완료 
 
 ---
 
