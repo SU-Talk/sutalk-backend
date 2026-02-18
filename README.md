@@ -13,6 +13,7 @@ SU-Talk은 삼육대학교 공식 커뮤니티 앱 내에 통합된
 MariaDB(RDS)를 활용한 도메인 설계와
 WebSocket 기반 실시간 채팅,
 Docker + GitHub Actions 기반 자동 배포 환경을 구성하였습니다.
+
 ---
 
 ## 📚 기술 스택
@@ -52,6 +53,7 @@ EC2 SSH Key 및 민감 정보는 레포지토리에 포함하지 않음
 
 초기 S3/CloudFront 기반 구성 시 외부 연계 이슈가 발생하여
 최종적으로 EC2 중심 구조로 전환하여 운영 안정성을 확보하였습니다.
+
 ---
 
 ## 🔧 프로젝트 DB 연결 예시 (`application.properties`)
