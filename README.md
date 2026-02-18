@@ -13,7 +13,7 @@ Spring Boot 기반이며, 데이터베이스는 AWS의 MariaDB RDS를 사용합�
 - **CI/CD:** GitHub Actions + Docker 기반 자동 배포
 
 
----mermaid
+```mermaid
 flowchart TD
     Client[Client / Browser]
     
@@ -33,7 +33,7 @@ flowchart TD
     DockerHub -->|Pull Image| EC2[AWS EC2]
     EC2 --> SpringBoot
 
----
+```
 ---
 
 ## 🚩 주의 사항
