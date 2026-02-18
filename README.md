@@ -15,35 +15,26 @@ Spring Boot 기반이며, 데이터베이스는 AWS의 MariaDB RDS를 사용합�
 
 ```mermaid
 flowchart LR
-  %% Mole PMS Deployment Architecture (clean)
-
   subgraph SCM["Source & CI/CD"]
     GH["GitHub"]
     GHA["GitHub Actions"]
     DH["Docker Hub"]
-    GH --> GHA -->|build & push image| DH
+    GH --> GHA -->|Build & Push Image| DH
   end
 
   subgraph AWS["AWS"]
-    subgraph EC1["EC2 #1 (Tomcat App)"]
-      APP["Tomcat 9 (WAR)"]
-    end
-
-    subgraph EC2["EC2 #2 (DB)"]
-      ORCL[("Oracle 11g (Docker)")]
-    end
-
-    DH -->|pull image| EC1
-    APP -->|SQL| ORCL
+    EC2["EC2 (Spring Boot)"]
+    RDS[("MariaDB (RDS)")]
+    DH -->|Pull Image| EC2
+    EC2 -->|JPA / SQL| RDS
   end
 
-  USER["User / Browser"] -->|HTTP| APP
-
+  USER["Client (Mobile)"] -->|REST / WebSocket| EC2
 
 ```
 ---
 
-## 🚩 보안 및 환경 관
+## 🚩 보안 및 환경 관리리
 
 DB 접속 정보는 환경 변수 및 GitHub Secrets를 통해 분리 관리 
 EC2 SSH Key 및 민감 정보는 레포지토리에 포함하지 않음
@@ -113,14 +104,16 @@ WebSocket 기반 실시간 채팅
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Server
-    participant DB
+    autonumber
+    participant C as Client
+    participant S as Spring Boot Server
+    participant D as MariaDB
 
-    Client->>Server: WebSocket 연결
-    Client->>Server: 메시지 전송
-    Server->>DB: 메시지 저장
-    Server->>Client: 실시간 메시지 전달
+    C->>S: Connect (WebSocket Handshake)
+    C->>S: Send Message
+    S->>D: Persist Message
+    S-->>C: Broadcast Message
+
 ```
 
 ## 🔁 거래 시스템
@@ -174,12 +167,13 @@ SearchHistory ↔ 사용자(User)
 
 ```mermaid
 erDiagram
-    User ||--o{ Item : sells
-    User ||--o{ ItemTransaction : participates
-    Item ||--|| ItemTransaction : related_to
-    ItemTransaction ||--|| ChatRoom : creates
-    ChatRoom ||--o{ ChatMessage : contains
-    ItemTransaction ||--o{ Review : generates
+    User ||--o{ Item : "creates"
+    User ||--o{ ItemTransaction : "joins"
+    Item ||--|| ItemTransaction : "mapped"
+    ItemTransaction ||--|| ChatRoom : "opens"
+    ChatRoom ||--o{ ChatMessage : "contains"
+    ItemTransaction ||--o{ Review : "generates"
+
 ```
 ---
 
@@ -206,15 +200,4 @@ EC2 SSH Key, 접속 정보 등은 GitHub Actions Secrets로 관리
 
 ---
 
-# 📌 개발 현황
 
-```
-✅ AWS RDS 데이터베이스 설정 완료  
-✅ Entity 및 Repository 구성 완료  
-✅ Dockerfile 작성 및 Docker 빌드 테스트 완료  
-✅ GitHub Actions를 통한 EC2 자동 배포 구성 완료  
-✅ EC2 인스턴스 연결 및 Docker 기반 배포 성공  
-✅ 주요 비즈니스 로직 및 핵심 기능 구현 완료  
-🔜 사용자 연동 및 관심 기능 추가 개발 예정
-
-```
