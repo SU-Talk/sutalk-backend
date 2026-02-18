@@ -167,12 +167,15 @@ SearchHistory ↔ 사용자(User)
 
 ```mermaid
 erDiagram
-    User ||--o{ Item : "creates"
-    User ||--o{ ItemTransaction : "joins"
-    Item ||--|| ItemTransaction : "mapped"
-    ItemTransaction ||--|| ChatRoom : "opens"
-    ChatRoom ||--o{ ChatMessage : "contains"
-    ItemTransaction ||--o{ Review : "generates"
+    User ||--o{ Item : creates
+    User ||--o{ ItemTransaction : joins
+    Item ||--|| ItemTransaction : mapped
+    ItemTransaction ||--|| ChatRoom : opens
+    ChatRoom ||--o{ ChatMessage : contains
+    ItemTransaction ||--o{ Review : generates
+
+    %% subtle styling
+    classDef entity fill:#1f6feb,color:#ffffff,stroke:#0d419d,stroke-width:1px;
 
 ```
 ---
